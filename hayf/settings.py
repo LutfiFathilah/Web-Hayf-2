@@ -192,19 +192,18 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-# Whitenoise configuration for Django 4.2+
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        # Use simple StaticFilesStorage for Vercel - more reliable
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+# CRITICAL: Use WhiteNoise's CompressedManifestStaticFilesStorage for production
+# If this causes issues, switch to StaticFilesStorage
+if IS_VERCEL or not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
-# Whitenoise settings - simplified
+# Whitenoise settings
 WHITENOISE_AUTOREFRESH = DEBUG
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_MANIFEST_STRICT = False  # Don't fail if manifest is missing
+WHITENOISE_ALLOW_ALL_ORIGINS = True
 
 # ==============================================================================
 # MEDIA FILES
@@ -472,9 +471,11 @@ if not IS_VERCEL:
     print("=" * 70)
     print(f"🚀 DJANGO HAYF PROJECT")
     print(f"📍 Environment: {'VERCEL' if IS_VERCEL else 'LOCAL'}")
-    print(f"🐛 DEBUG: {DEBUG}")
+    print(f"🛠 DEBUG: {DEBUG}")
     print(f"💾 Database: {DATABASES['default']['ENGINE'].split('.')[-1].upper()}")
     if DATABASE_URL:
+        tmpPostgres = urlparse(DATABASE_URL)
         print(f"🔗 DB Host: {tmpPostgres.hostname}")
     print(f"📁 Static Root: {STATIC_ROOT}")
+    print(f"📦 Static Storage: {STATICFILES_STORAGE}")
     print("=" * 70)
