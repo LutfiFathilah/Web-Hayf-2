@@ -1,5 +1,5 @@
 
-# pip install -r requirements.txt
+pip install -r requirements.txt
 
-# # Collect static files
-# python manage.py collectstatic --noinput --clear
+# Collect static files
+python manage.py collectstatic --noinput --clear
