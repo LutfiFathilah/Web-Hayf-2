@@ -1,14 +1,20 @@
 """
 Django settings for hayf project - VERCEL PRODUCTION READY
-FIXED: Windows compatibility untuk development
+Optimized for Vercel serverless deployment
 """
 
 import os
-import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ==============================================================================
+# ENVIRONMENT DETECTION
+# ==============================================================================
+
+# Detect if running on Vercel
+IS_VERCEL = os.environ.get('VERCEL') == '1' or os.environ.get('VERCEL_ENV') is not None
 
 # ==============================================================================
 # SECURITY SETTINGS
@@ -16,15 +22,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production-12345')
 
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+# DEBUG - Default False untuk production, True untuk development
+DEBUG = os.environ.get('DEBUG', 'False' if IS_VERCEL else 'True') == 'True'
 
 ALLOWED_HOSTS = [
     '.vercel.app',
     '.now.sh', 
     'localhost', 
     '127.0.0.1',
-    '*'
 ]
+
+# Add specific domain if needed
+if os.environ.get('ALLOWED_HOST'):
+    ALLOWED_HOSTS.append(os.environ.get('ALLOWED_HOST'))
 
 # ==============================================================================
 # APPLICATION DEFINITION
@@ -85,44 +95,49 @@ WSGI_APPLICATION = 'hayf.wsgi.application'
 ASGI_APPLICATION = 'hayf.asgi.application'
 
 # ==============================================================================
-# DATABASE CONFIGURATION - AUTO DETECT ENVIRONMENT
+# DATABASE CONFIGURATION
 # ==============================================================================
 
-# Detect if running on Vercel
-IS_VERCEL = os.environ.get('VERCEL', False)
-
 if IS_VERCEL:
-    # Production on Vercel - use /tmp/
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': '/tmp/db.sqlite3',
+    # Production on Vercel
+    # Option 1: PostgreSQL (RECOMMENDED for production)
+    if os.environ.get('DATABASE_URL'):
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=os.environ.get('DATABASE_URL'),
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
         }
-    }
+    # Option 2: PostgreSQL with individual credentials
+    elif os.environ.get('DB_NAME'):
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('DB_NAME'),
+                'USER': os.environ.get('DB_USER'),
+                'PASSWORD': os.environ.get('DB_PASSWORD'),
+                'HOST': os.environ.get('DB_HOST'),
+                'PORT': os.environ.get('DB_PORT', '5432'),
+            }
+        }
+    # Option 3: SQLite (NOT RECOMMENDED - data will be lost on redeploy)
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': '/tmp/db.sqlite3',
+            }
+        }
 else:
-    # Local development (Windows/Linux/Mac) - use project folder
+    # Local development
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-
-# ==============================================================================
-# POSTGRESQL CONFIGURATION (RECOMMENDED FOR PRODUCTION)
-# Uncomment dan comment out SQLite di atas saat sudah setup PostgreSQL
-# ==============================================================================
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('DB_NAME'),
-#         'USER': os.environ.get('DB_USER'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD'),
-#         'HOST': os.environ.get('DB_HOST'),
-#         'PORT': os.environ.get('DB_PORT', '5432'),
-#     }
-# }
 
 # ==============================================================================
 # PASSWORD VALIDATION
@@ -149,30 +164,41 @@ USE_TZ = True
 # ==============================================================================
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Static root untuk collectstatic
-if IS_VERCEL:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
-else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# Static files directories
+# Static files directories - only add if they exist
 STATICFILES_DIRS = []
-if os.path.exists(os.path.join(BASE_DIR, 'static')):
-    STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'static'))
-if os.path.exists(os.path.join(BASE_DIR, 'dashboard', 'static')):
-    STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'dashboard', 'static'))
+static_dir = BASE_DIR / 'static'
+if static_dir.exists():
+    STATICFILES_DIRS.append(static_dir)
 
-# Whitenoise configuration
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+dashboard_static = BASE_DIR / 'dashboard' / 'static'
+if dashboard_static.exists():
+    STATICFILES_DIRS.append(dashboard_static)
+
+# Storage configuration for Django 4.2+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # ==============================================================================
 # MEDIA FILES
 # ==============================================================================
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-os.makedirs(MEDIA_ROOT, exist_ok=True)
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Create media directory if it doesn't exist
+if not IS_VERCEL:
+    MEDIA_ROOT.mkdir(exist_ok=True)
+
+# WARNING: Vercel doesn't support persistent file storage
+# For production, use cloud storage (AWS S3, Cloudinary, etc.)
 
 # ==============================================================================
 # DEFAULT PRIMARY KEY FIELD TYPE
@@ -187,7 +213,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
 }
+
+if DEBUG:
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'].append(
+        'rest_framework.renderers.BrowsableAPIRenderer'
+    )
 
 # ==============================================================================
 # CORS CONFIGURATION
@@ -199,17 +233,35 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8000',
 ]
 
-if not DEBUG:
-    CORS_ALLOWED_ORIGINS += ['https://*.vercel.app']
+# Add production frontend URL
+if os.environ.get('FRONTEND_URL'):
+    CORS_ALLOWED_ORIGINS.append(os.environ.get('FRONTEND_URL'))
+
+# For development only
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = False  # Set to True only for testing
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 # ==============================================================================
 # SESSION & CSRF CONFIGURATION
 # ==============================================================================
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 86400
+SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
@@ -218,9 +270,16 @@ CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
-if not DEBUG:
-    CSRF_TRUSTED_ORIGINS += ['https://*.vercel.app']
+# CSRF Trusted Origins
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://127.0.0.1:8000',
+    'https://*.vercel.app',
+]
+
+# Add specific production domain
+if os.environ.get('PRODUCTION_URL'):
+    CSRF_TRUSTED_ORIGINS.append(os.environ.get('PRODUCTION_URL'))
 
 # ==============================================================================
 # MESSAGES FRAMEWORK
@@ -243,12 +302,14 @@ MESSAGE_TAGS = {
 MIDTRANS_CLIENT_KEY = os.environ.get('MIDTRANS_CLIENT_KEY', 'Mid-client-7IOSP8-yCqsvQrmc')
 MIDTRANS_SERVER_KEY = os.environ.get('MIDTRANS_SERVER_KEY', 'Mid-server-d0YeZC33h0j943-0h5dqLKC5')
 MIDTRANS_MERCHANT_ID = os.environ.get('MIDTRANS_MERCHANT_ID', 'G267798344')
-MIDTRANS_IS_PRODUCTION = os.environ.get('MIDTRANS_IS_PRODUCTION', 'True') == 'True'
+MIDTRANS_IS_PRODUCTION = os.environ.get('MIDTRANS_IS_PRODUCTION', 'False') == 'True'
 
-MIDTRANS_FINISH_URL = os.environ.get('MIDTRANS_FINISH_URL', 'http://localhost:8000/payment/finish/')
-MIDTRANS_UNFINISH_URL = os.environ.get('MIDTRANS_UNFINISH_URL', 'http://localhost:8000/payment/unfinish/')
-MIDTRANS_ERROR_URL = os.environ.get('MIDTRANS_ERROR_URL', 'http://localhost:8000/payment/error/')
-MIDTRANS_NOTIFICATION_URL = os.environ.get('MIDTRANS_NOTIFICATION_URL', 'http://localhost:8000/payment/notification/')
+# Midtrans URLs - adjust based on environment
+BASE_URL = os.environ.get('BASE_URL', 'http://localhost:8000')
+MIDTRANS_FINISH_URL = f'{BASE_URL}/payment/finish/'
+MIDTRANS_UNFINISH_URL = f'{BASE_URL}/payment/unfinish/'
+MIDTRANS_ERROR_URL = f'{BASE_URL}/payment/error/'
+MIDTRANS_NOTIFICATION_URL = f'{BASE_URL}/payment/notification/'
 
 DEFAULT_CURRENCY = 'IDR'
 
@@ -329,6 +390,10 @@ LOGGING = {
             'format': '{levelname} {asctime} {module} {message}',
             'style': '{',
         },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
     },
     'handlers': {
         'console': {
@@ -338,7 +403,7 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': 'WARNING' if IS_VERCEL else 'INFO',
     },
     'loggers': {
         'django': {
@@ -348,7 +413,7 @@ LOGGING = {
         },
         'dashboard': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO' if IS_VERCEL else 'DEBUG',
             'propagate': False,
         },
     },
@@ -358,26 +423,21 @@ LOGGING = {
 # SECURITY SETTINGS FOR PRODUCTION
 # ==============================================================================
 
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+if not DEBUG and IS_VERCEL:
+    # SSL/HTTPS
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    
+    # Cookies
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    
+    # Security Headers
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-
-# ==============================================================================
-# DEVELOPMENT vs PRODUCTION INFO
-# ==============================================================================
-
-print("=" * 60)
-print(f"🚀 DJANGO SETTINGS LOADED")
-print(f"📍 Environment: {'VERCEL (Production)' if IS_VERCEL else 'LOCAL (Development)'}")
-print(f"🐛 DEBUG Mode: {DEBUG}")
-print(f"💾 Database: {DATABASES['default']['NAME']}")
-print(f"📁 Static Root: {STATIC_ROOT}")
-print("=" * 60)
+    
+    # HSTS (uncomment after testing)
+    # SECURE_HSTS_SECONDS = 31536000
+    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    # SECURE_HSTS_PRELOAD = True

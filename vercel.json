@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "version": 2,
   "builds": [
@@ -32,3 +33,20 @@
     }
   ]
 }
+=======
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "hayf/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "hayf/wsgi.py"
+    }
+  ]
+}
+>>>>>>> 658b8fed0dbd99a9e2effe59bee45687d0d0a062

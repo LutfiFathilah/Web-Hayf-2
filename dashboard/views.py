@@ -13,10 +13,24 @@ import logging
 import json
 from django.db.models import Q, Avg, Count
 from django.core.mail import send_mail, BadHeaderError
-from django.conf import settings
 
 from .models import Product, Category, Order, OrderItem, Customer, Review, Coupon
 from .forms import RegisterForm, LoginForm, CustomerProfileForm, ReviewForm, ContactForm
+
+from django.http import HttpResponse
+import sys
+
+def health_check(request):
+    """Simple health check endpoint"""
+    return HttpResponse(f"""
+        <h1>✅ Django is Working!</h1>
+        <ul>
+            <li>Python version: {sys.version}</li>
+            <li>Django settings module: {request.META.get('DJANGO_SETTINGS_MODULE')}</li>
+            <li>Debug mode: {settings.DEBUG}</li>
+            <li>User authenticated: {request.user.is_authenticated}</li>
+        </ul>
+    """)
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -448,8 +462,6 @@ Balas langsung ke email: {email}
             
             try:
                 # Kirim email
-                from django.core.mail import send_mail
-                
                 send_mail(
                     subject=email_subject,
                     message=email_body,
@@ -462,7 +474,7 @@ Balas langsung ke email: {email}
                 
                 messages.success(
                     request, 
-                    '✅ Pesan Anda telah terkirim! Kami akan segera menghubungi Anda dalam 1x24 jam.'
+                    'Pesan Anda telah terkirim! Kami akan segera menghubungi Anda dalam 1x24 jam.'
                 )
                 
                 return redirect('dashboard:kontak')
@@ -471,7 +483,7 @@ Balas langsung ke email: {email}
                 logger.error(f"Error sending contact email: {str(e)}")
                 messages.error(
                     request, 
-                    '❌ Gagal mengirim pesan. Silakan coba lagi atau hubungi kami melalui WhatsApp.'
+                    'Gagal mengirim pesan. Silakan coba lagi atau hubungi kami melalui WhatsApp.'
                 )
         else:
             for field, errors in form.errors.items():
@@ -586,7 +598,6 @@ def view_cart(request):
         return redirect('dashboard:index')
 
 
-@require_POST
 @require_POST
 def add_to_cart(request, product_id):
     """Add product to cart via AJAX - Returns JSON response"""

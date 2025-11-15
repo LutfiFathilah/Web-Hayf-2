@@ -1,5 +1,10 @@
 """
 dashboard/urls.py - URL Configuration LENGKAP dengan Payment Integration
+urlpatterns = [
+    path('health/', views.health_check, name='health'),  # Tambahkan ini
+    path('', views.index, name='index'),
+    # ... routes lainnya
+]
 Replace file dashboard/urls.py Anda dengan file ini
 """
 from django.urls import path
