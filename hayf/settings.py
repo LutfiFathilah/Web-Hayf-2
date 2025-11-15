@@ -1,6 +1,6 @@
 """
 Django settings for hayf project - VERCEL PRODUCTION READY
-Optimized for Vercel serverless deployment
+Optimized for Vercel serverless deployment with Neon PostgreSQL
 """
 
 import os
@@ -95,43 +95,64 @@ WSGI_APPLICATION = 'hayf.wsgi.application'
 ASGI_APPLICATION = 'hayf.asgi.application'
 
 # ==============================================================================
-# DATABASE CONFIGURATION
+# DATABASE CONFIGURATION - UPDATED FOR NEON POSTGRESQL
 # ==============================================================================
 
-if IS_VERCEL:
-    # Production on Vercel
-    # Option 1: PostgreSQL (RECOMMENDED for production)
-    if os.environ.get('DATABASE_URL'):
-        import dj_database_url
-        DATABASES = {
-            'default': dj_database_url.config(
-                default=os.environ.get('DATABASE_URL'),
-                conn_max_age=600,
-                conn_health_checks=True,
-            )
+# Check if DATABASE_URL is provided (for Neon PostgreSQL)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # Production with PostgreSQL (Neon, Supabase, etc.)
+    import dj_database_url
+    
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True,  # Required for Neon
+        )
+    }
+    
+    # Additional PostgreSQL optimizations for Vercel
+    DATABASES['default']['OPTIONS'] = {
+        'sslmode': 'require',
+        'connect_timeout': 10,
+    }
+    
+elif IS_VERCEL and os.environ.get('DB_NAME'):
+    # Alternative: PostgreSQL with individual credentials
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+            'OPTIONS': {
+                'sslmode': 'require',
+                'connect_timeout': 10,
+            },
+            'CONN_MAX_AGE': 600,
         }
-    # Option 2: PostgreSQL with individual credentials
-    elif os.environ.get('DB_NAME'):
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.environ.get('DB_NAME'),
-                'USER': os.environ.get('DB_USER'),
-                'PASSWORD': os.environ.get('DB_PASSWORD'),
-                'HOST': os.environ.get('DB_HOST'),
-                'PORT': os.environ.get('DB_PORT', '5432'),
-            }
+    }
+    
+elif IS_VERCEL:
+    # WARNING: SQLite on Vercel - data will be lost on redeploy!
+    # This is a fallback and NOT recommended for production
+    import logging
+    logging.warning('Using SQLite on Vercel - data will be lost on redeploy!')
+    
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/tmp/db.sqlite3',
         }
-    # Option 3: SQLite (NOT RECOMMENDED - data will be lost on redeploy)
-    else:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': '/tmp/db.sqlite3',
-            }
-        }
+    }
+    
 else:
-    # Local development
+    # Local development - SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
