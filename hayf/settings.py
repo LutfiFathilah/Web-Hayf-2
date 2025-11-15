@@ -5,15 +5,18 @@ Optimized for Vercel serverless deployment with Neon PostgreSQL
 
 import os
 from pathlib import Path
+from urllib.parse import urlparse, parse_qsl
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Load .env file if exists (for local development)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed, skip
 
-
- 
 # ==============================================================================
 # ENVIRONMENT DETECTION
 # ==============================================================================
@@ -99,97 +102,48 @@ TEMPLATES = [
 WSGI_APPLICATION = 'hayf.wsgi.application'
 ASGI_APPLICATION = 'hayf.asgi.application'
 
-# # ==============================================================================
-# # DATABASE CONFIGURATION - UPDATED FOR NEON POSTGRESQL
-# # ==============================================================================
+# ==============================================================================
+# DATABASE CONFIGURATION - NEON POSTGRESQL
+# ==============================================================================
 
-# # Check if DATABASE_URL is provided (for Neon PostgreSQL)
-# DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
-# if DATABASE_URL:
-#     # Production with PostgreSQL (Neon, Supabase, etc.)
-#     import dj_database_url
+if DATABASE_URL:
+    # Parse PostgreSQL connection string
+    tmpPostgres = urlparse(DATABASE_URL)
     
-#     DATABASES = {
-#         'default': dj_database_url.config(
-#             default=DATABASE_URL,
-#             conn_max_age=600,
-#             conn_health_checks=True,
-#             ssl_require=True,  # Required for Neon
-#         )
-#     }
-    
-#     # Additional PostgreSQL optimizations for Vercel
-#     DATABASES['default']['OPTIONS'] = {
-#         'sslmode': 'require',
-#         'connect_timeout': 10,
-#     }
-    
-# elif IS_VERCEL and os.environ.get('DB_NAME'):
-#     # Alternative: PostgreSQL with individual credentials
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': os.environ.get('DB_NAME'),
-#             'USER': os.environ.get('DB_USER'),
-#             'PASSWORD': os.environ.get('DB_PASSWORD'),
-#             'HOST': os.environ.get('DB_HOST'),
-#             'PORT': os.environ.get('DB_PORT', '5432'),
-#             'OPTIONS': {
-#                 'sslmode': 'require',
-#                 'connect_timeout': 10,
-#             },
-#             'CONN_MAX_AGE': 600,
-#         }
-#     }
-    
-# elif IS_VERCEL:
-#     # WARNING: SQLite on Vercel - data will be lost on redeploy!
-#     # This is a fallback and NOT recommended for production
-#     import logging
-#     logging.warning('Using SQLite on Vercel - data will be lost on redeploy!')
-    
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': '/tmp/db.sqlite3',
-#         }
-#     }
-    
-# else:
-#     # Local development - SQLite
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
-#         }
-#     }
-
-# ======================================================================
-# DATABASE CONFIGURATION (PostgreSQL only)
-# ======================================================================
-
-# Add these at the top of your settings.py
-import os
-from dotenv import load_dotenv
-from urllib.parse import urlparse, parse_qsl
-
-load_dotenv()
-
-# Replace the DATABASES section of your settings.py with this
-tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': tmpPostgres.path.replace('/', ''),
-        'USER': tmpPostgres.username,
-        'PASSWORD': tmpPostgres.password,
-        'HOST': tmpPostgres.hostname,
-        'PORT': 5432,
-        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': tmpPostgres.path.replace('/', ''),
+            'USER': tmpPostgres.username,
+            'PASSWORD': tmpPostgres.password,
+            'HOST': tmpPostgres.hostname,
+            'PORT': tmpPostgres.port or 5432,
+            'OPTIONS': {
+                'sslmode': 'require',
+                'connect_timeout': 10,
+            },
+            'CONN_MAX_AGE': 600,
+            'CONN_HEALTH_CHECKS': True,
+        }
     }
-}
+    
+    print(f"✅ Connected to PostgreSQL: {tmpPostgres.hostname}")
+    
+else:
+    # Fallback to SQLite for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    
+    print(f"⚠️  Using SQLite for development")
+    if IS_VERCEL:
+        import logging
+        logging.warning('DATABASE_URL not found! Using SQLite - data will be lost on redeploy!')
 
 # ==============================================================================
 # PASSWORD VALIDATION
