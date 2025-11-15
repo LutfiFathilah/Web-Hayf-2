@@ -1,7 +1,7 @@
 # hayf/wsgi.py
 """
 WSGI config for hayf project.
-Compatible with Vercel serverless deployment with auto-migration.
+Compatible with Vercel serverless deployment with auto-migration and collectstatic.
 """
 
 import os
@@ -14,15 +14,25 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hayf.settings')
 # Get WSGI application
 application = get_wsgi_application()
 
-# Auto-migrate on Vercel startup
+# Auto-setup on Vercel startup
 if os.environ.get('VERCEL'):
-    print("🚀 Vercel environment detected. Running migrations...")
+    print("🚀 Vercel environment detected. Running setup...")
+    
     try:
         from django.core.management import call_command
         from django.db import connection
         from django.db.utils import OperationalError
         
-        # Always run migrations on Vercel (SQLite resets on each cold start)
+        # CRITICAL: Collect static files FIRST
+        print("📦 Collecting static files...")
+        try:
+            call_command('collectstatic', '--noinput', '--clear', verbosity=1)
+            print("✅ Static files collected successfully!")
+        except Exception as static_error:
+            print(f"⚠️  Collectstatic error: {static_error}")
+            # Continue anyway - static files might already be there
+        
+        # Run migrations
         print("📦 Running migrations...")
         call_command('migrate', '--noinput', verbosity=1)
         print("✅ Migrations completed successfully!")
@@ -73,9 +83,11 @@ if os.environ.get('VERCEL'):
                 print("✅ Sample product created")
         except Exception as sample_error:
             print(f"ℹ️  Sample data creation skipped: {sample_error}")
+        
+        print("🎉 Vercel setup completed!")
             
     except Exception as e:
-        print(f"❌ Migration error: {e}")
+        print(f"❌ Setup error: {e}")
         import traceback
         print(traceback.format_exc())
 
