@@ -1,4 +1,3 @@
-
 {
   "version": 2,
   "builds": [
@@ -32,19 +31,4 @@
       "dest": "hayf/wsgi.py"
     }
   ]
-}
-{
-  // "version": 2,
-  // "builds": [
-  //   {
-  //     "src": "hayf/wsgi.py",
-  //     "use": "@vercel/python"
-  //   }
-  // ],
-  // "routes": [
-  //   {
-  //     "src": "/(.*)",
-  //     "dest": "hayf/wsgi.py"
-  //   }
-  // ]
 }
