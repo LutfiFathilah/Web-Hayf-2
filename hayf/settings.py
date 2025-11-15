@@ -1,11 +1,12 @@
 """
 Django settings for hayf project - VERCEL PRODUCTION READY
 Optimized for Vercel serverless deployment with Neon PostgreSQL
+FIXED: Static files, Database, and all configurations
 """
 
 import os
 from pathlib import Path
-from urllib.parse import urlparse, parse_qsl
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,11 +39,8 @@ ALLOWED_HOSTS = [
     '.now.sh', 
     'localhost', 
     '127.0.0.1',
+    '*',  # Allow all for now, specify your domain later
 ]
-
-# Add specific domain if needed
-if os.environ.get('ALLOWED_HOST'):
-    ALLOWED_HOSTS.append(os.environ.get('ALLOWED_HOST'))
 
 # ==============================================================================
 # APPLICATION DEFINITION
@@ -66,7 +64,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Must be after SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -129,7 +127,8 @@ if DATABASE_URL:
         }
     }
     
-    print(f"✅ Connected to PostgreSQL: {tmpPostgres.hostname}")
+    if not IS_VERCEL:
+        print(f"✅ Connected to PostgreSQL: {tmpPostgres.hostname}")
     
 else:
     # Fallback to SQLite for local development
@@ -140,7 +139,9 @@ else:
         }
     }
     
-    print(f"⚠️  Using SQLite for development")
+    if not IS_VERCEL:
+        print(f"⚠️  Using SQLite for development")
+    
     if IS_VERCEL:
         import logging
         logging.warning('DATABASE_URL not found! Using SQLite - data will be lost on redeploy!')
@@ -166,23 +167,32 @@ USE_I18N = True
 USE_TZ = True
 
 # ==============================================================================
-# STATIC FILES (CSS, JavaScript, Images)
+# STATIC FILES (CSS, JavaScript, Images) - FIXED FOR VERCEL
 # ==============================================================================
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Static files directories - only add if they exist
+# Static root - where collectstatic puts files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Additional locations of static files
 STATICFILES_DIRS = []
-static_dir = BASE_DIR / 'static'
-if static_dir.exists():
-    STATICFILES_DIRS.append(static_dir)
 
-dashboard_static = BASE_DIR / 'dashboard' / 'static'
-if dashboard_static.exists():
-    STATICFILES_DIRS.append(dashboard_static)
+# Add static directory if it exists
+if os.path.exists(os.path.join(BASE_DIR, 'static')):
+    STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'static'))
 
-# Storage configuration for Django 4.2+
+# Add dashboard static if it exists
+if os.path.exists(os.path.join(BASE_DIR, 'dashboard', 'static')):
+    STATICFILES_DIRS.append(os.path.join(BASE_DIR, 'dashboard', 'static'))
+
+# Static files finders
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+# Whitenoise configuration for Django 4.2+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -192,16 +202,21 @@ STORAGES = {
     },
 }
 
+# Whitenoise settings
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True if DEBUG else False
+WHITENOISE_IMMUTABLE_FILE_TEST = lambda path, url: False  # Disable immutable files in dev
+
 # ==============================================================================
 # MEDIA FILES
 # ==============================================================================
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Create media directory if it doesn't exist
+# Create media directory if it doesn't exist (local only)
 if not IS_VERCEL:
-    MEDIA_ROOT.mkdir(exist_ok=True)
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 # WARNING: Vercel doesn't support persistent file storage
 # For production, use cloud storage (AWS S3, Cloudinary, etc.)
@@ -244,10 +259,7 @@ if os.environ.get('FRONTEND_URL'):
     CORS_ALLOWED_ORIGINS.append(os.environ.get('FRONTEND_URL'))
 
 # For development only
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = False  # Set to True only for testing
-else:
-    CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
@@ -417,6 +429,11 @@ LOGGING = {
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
             'propagate': False,
         },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
         'dashboard': {
             'handlers': ['console'],
             'level': 'INFO' if IS_VERCEL else 'DEBUG',
@@ -429,7 +446,7 @@ LOGGING = {
 # SECURITY SETTINGS FOR PRODUCTION
 # ==============================================================================
 
-if not DEBUG and IS_VERCEL:
+if not DEBUG:
     # SSL/HTTPS
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
@@ -443,7 +460,22 @@ if not DEBUG and IS_VERCEL:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     
-    # HSTS (uncomment after testing)
+    # HSTS - Enable after confirming everything works
     # SECURE_HSTS_SECONDS = 31536000
     # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     # SECURE_HSTS_PRELOAD = True
+
+# ==============================================================================
+# DEVELOPMENT INFO
+# ==============================================================================
+
+if not IS_VERCEL:
+    print("=" * 70)
+    print(f"🚀 DJANGO HAYF PROJECT")
+    print(f"📍 Environment: {'VERCEL' if IS_VERCEL else 'LOCAL'}")
+    print(f"🐛 DEBUG: {DEBUG}")
+    print(f"💾 Database: {DATABASES['default']['ENGINE'].split('.')[-1].upper()}")
+    if DATABASE_URL:
+        print(f"🔗 DB Host: {tmpPostgres.hostname}")
+    print(f"📁 Static Root: {STATIC_ROOT}")
+    print("=" * 70)
