@@ -24,5 +24,5 @@
       "dest": "hayf/wsgi.py"
     }
   ],
-  "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --noinput --clear"
+  "buildCommand": "pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput --clear"
 }
