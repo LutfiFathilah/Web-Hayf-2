@@ -1,21 +1,14 @@
 {
-     "version": 2,
-     "builds": [
-       {
-         "src": "hayf/wsgi.py",
-         "use": "@vercel/python"
-       }
-     ],
-     "routes": [
-       {
-         "src": "/(.*)",
-         "dest": "hayf/wsgi.py"
-       }
-     ]
-   }
-```
-
-2. **Set di Vercel Dashboard Environment Variables**:
-```
-   DEBUG=True
-   DJANGO_SETTINGS_MODULE=hayf.settings
+  "builds": [
+    {
+      "src": "hayf/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "hayf/wsgi.py"
+    }
+  ]
+}
