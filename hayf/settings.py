@@ -11,12 +11,12 @@ from urllib.parse import urlparse
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# # Load .env file if exists (for local development)
-# try:
-#     from dotenv import load_dotenv
-#     load_dotenv()
-# except ImportError:
-#     pass  # python-dotenv not installed, skip
+# Load .env file if exists (for local development)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed, skip
 
 # ==============================================================================
 # ENVIRONMENT DETECTION
@@ -198,14 +198,13 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        # Use simple StaticFilesStorage for Vercel - more reliable
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
-# Whitenoise settings
-WHITENOISE_USE_FINDERS = True
-WHITENOISE_AUTOREFRESH = True if DEBUG else False
-WHITENOISE_IMMUTABLE_FILE_TEST = lambda path, url: False  # Disable immutable files in dev
+# Whitenoise settings - simplified
+WHITENOISE_AUTOREFRESH = DEBUG
 
 # ==============================================================================
 # MEDIA FILES
