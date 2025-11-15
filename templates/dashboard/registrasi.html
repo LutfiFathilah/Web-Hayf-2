@@ -1,0 +1,959 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Daftar - Kopi Hayf{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== AUTH LAYOUT ==================== */
+    .auth-container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFE5CC 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255, 140, 0, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    .auth-container::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 140, 0, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(30px, -30px) rotate(5deg); }
+        66% { transform: translate(-20px, 20px) rotate(-5deg); }
+    }
+
+    .auth-wrapper {
+        width: 100%;
+        max-width: 600px;
+        position: relative;
+        z-index: 1;
+        animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 24px;
+        padding: 48px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        border: 2px solid rgba(255, 140, 0, 0.1);
+    }
+
+    /* ==================== HEADER ==================== */
+    .auth-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .auth-logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        box-shadow: 0 8px 24px rgba(255, 140, 0, 0.3);
+    }
+
+    .auth-logo svg {
+        width: 48px;
+        height: 48px;
+    }
+
+    .auth-header h1 {
+        font-size: 32px;
+        font-weight: 800;
+        color: #2C1810;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .auth-header p {
+        font-size: 16px;
+        color: #6B5B4F;
+        line-height: 1.5;
+    }
+
+    /* ==================== ALERTS ==================== */
+    .alert {
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: start;
+        gap: 12px;
+        font-size: 14px;
+        line-height: 1.5;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-error {
+        background: #FEE;
+        color: #C33;
+        border: 1px solid #FCC;
+    }
+
+    .alert-success {
+        background: #EFE;
+        color: #3C3;
+        border: 1px solid #CFC;
+    }
+
+    .alert-icon {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+    }
+
+    /* ==================== FORM ==================== */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .form-row-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #2C1810;
+        margin-bottom: 8px;
+    }
+
+    .form-label.required::after {
+        content: '*';
+        color: #FF8C00;
+        margin-left: 4px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #E5E5E5;
+        border-radius: 12px;
+        font-size: 15px;
+        color: #2C1810;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #FF8C00;
+        box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.1);
+    }
+
+    .form-input::placeholder {
+        color: #999;
+    }
+
+    .form-input.error {
+        border-color: #F44336;
+    }
+
+    .form-error {
+        display: block;
+        margin-top: 8px;
+        font-size: 13px;
+        color: #F44336;
+    }
+
+    .input-group {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        width: 20px;
+        height: 20px;
+    }
+
+    .input-group .form-input {
+        padding-left: 48px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #999;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+        color: #FF8C00;
+    }
+
+    .password-strength {
+        display: flex;
+        gap: 4px;
+        margin-top: 8px;
+    }
+
+    .strength-bar {
+        flex: 1;
+        height: 4px;
+        background: #E5E5E5;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .strength-bar.active.weak {
+        background: #F44336;
+    }
+
+    .strength-bar.active.medium {
+        background: #FF9800;
+    }
+
+    .strength-bar.active.strong {
+        background: #4CAF50;
+    }
+
+    .strength-text {
+        font-size: 13px;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
+    /* ==================== RADIO BUTTONS ==================== */
+    .radio-group {
+        display: flex;
+        gap: 16px;
+        margin-top: 8px;
+    }
+
+    .radio-item {
+        position: relative;
+        flex: 1;
+    }
+
+    .radio-item input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .radio-label {
+        display: block;
+        padding: 12px 20px;
+        border: 2px solid #E5E5E5;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        color: #6B5B4F;
+    }
+
+    .radio-item input[type="radio"]:checked + .radio-label {
+        border-color: #FF8C00;
+        background: rgba(255, 140, 0, 0.05);
+        color: #FF8C00;
+    }
+
+    .radio-label:hover {
+        border-color: #FF8C00;
+    }
+
+    /* ==================== CHECKBOX ==================== */
+    .form-checkbox {
+        display: flex;
+        align-items: start;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding: 16px;
+        background: #F9F9F9;
+        border-radius: 12px;
+    }
+
+    .form-checkbox input[type="checkbox"] {
+        margin-top: 2px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #FF8C00;
+    }
+
+    .form-checkbox label {
+        font-size: 14px;
+        color: #6B5B4F;
+        line-height: 1.6;
+        cursor: pointer;
+    }
+
+    .form-checkbox label a {
+        color: #FF8C00;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .form-checkbox label a:hover {
+        text-decoration: underline;
+    }
+
+    /* ==================== SUBMIT BUTTON ==================== */
+    .btn-submit {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 16px rgba(255, 140, 0, 0.3);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(255, 140, 0, 0.4);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    /* ==================== DIVIDER ==================== */
+    .divider {
+        text-align: center;
+        margin: 32px 0;
+        position: relative;
+        color: #999;
+        font-size: 14px;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: calc(50% - 30px);
+        height: 1px;
+        background: #E5E5E5;
+    }
+
+    .divider::before {
+        left: 0;
+    }
+
+    .divider::after {
+        right: 0;
+    }
+
+    /* ==================== FOOTER ==================== */
+    .auth-footer {
+        text-align: center;
+        font-size: 15px;
+        color: #6B5B4F;
+    }
+
+    .auth-footer a {
+        color: #FF8C00;
+        font-weight: 700;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .auth-footer a:hover {
+        color: #FF6B00;
+        text-decoration: underline;
+    }
+
+    .auth-link {
+        display: inline-flex;
+        align-items: center;
+        color: #6B5B4F;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.3s ease;
+    }
+
+    .auth-link:hover {
+        color: #FF8C00;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+        .auth-card {
+            padding: 32px 24px;
+        }
+
+        .form-row,
+        .form-row-3 {
+            grid-template-columns: 1fr;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                        <line x1="6" y1="1" x2="6" y2="4"/>
+                        <line x1="10" y1="1" x2="10" y2="4"/>
+                        <line x1="14" y1="1" x2="14" y2="4"/>
+                    </svg>
+                </div>
+                <h1>Buat Akun Baru</h1>
+                <p>Bergabunglah dengan kami dan nikmati pengalaman berbelanja kopi terbaik</p>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            {% if message.tags == 'error' %}
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            {% else %}
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            {% endif %}
+                        </svg>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Registration Form -->
+            <form method="POST" id="registerForm" novalidate>
+                {% csrf_token %}
+
+                <!-- Nama Lengkap -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name" class="form-label required">Nama Depan</label>
+                        <div class="input-group">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <input 
+                                type="text" 
+                                id="first_name" 
+                                name="first_name" 
+                                class="form-input"
+                                placeholder="Nama Depan *"
+                                value="{{ form.first_name.value|default:'' }}"
+                                required
+                            >
+                        </div>
+                        {% if form.first_name.errors %}
+                            <span class="form-error">{{ form.first_name.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name" class="form-label required">Nama Belakang</label>
+                        <div class="input-group">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <input 
+                                type="text" 
+                                id="last_name" 
+                                name="last_name" 
+                                class="form-input"
+                                placeholder="Nama Belakang *"
+                                value="{{ form.last_name.value|default:'' }}"
+                                required
+                            >
+                        </div>
+                        {% if form.last_name.errors %}
+                            <span class="form-error">{{ form.last_name.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email" class="form-label required">Email</label>
+                    <div class="input-group">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input"
+                            placeholder="nama@email.com *"
+                            value="{{ form.email.value|default:'' }}"
+                            required
+                        >
+                    </div>
+                    {% if form.email.errors %}
+                        <span class="form-error">{{ form.email.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Nomor Telepon -->
+                <div class="form-group">
+                    <label for="phone" class="form-label required">Nomor Telepon</label>
+                    <div class="input-group">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            class="form-input"
+                            placeholder="08xx atau +62xxx *"
+                            value="{{ form.phone.value|default:'' }}"
+                            required
+                        >
+                    </div>
+                    {% if form.phone.errors %}
+                        <span class="form-error">{{ form.phone.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Tanggal Lahir -->
+                <div class="form-group">
+                    <label class="form-label required">Tanggal Lahir</label>
+                    <div class="form-row-3">
+                        <div>
+                            <input 
+                                type="number" 
+                                id="birth_day" 
+                                name="birth_day" 
+                                class="form-input"
+                                placeholder="Hari"
+                                min="1"
+                                max="31"
+                                value="{{ form.birth_day.value|default:'' }}"
+                                required
+                            >
+                            {% if form.birth_day.errors %}
+                                <span class="form-error">{{ form.birth_day.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <input 
+                                type="number" 
+                                id="birth_month" 
+                                name="birth_month" 
+                                class="form-input"
+                                placeholder="Bulan"
+                                min="1"
+                                max="12"
+                                value="{{ form.birth_month.value|default:'' }}"
+                                required
+                            >
+                            {% if form.birth_month.errors %}
+                                <span class="form-error">{{ form.birth_month.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <input 
+                                type="number" 
+                                id="birth_year" 
+                                name="birth_year" 
+                                class="form-input"
+                                placeholder="Tahun"
+                                min="1900"
+                                max="2024"
+                                value="{{ form.birth_year.value|default:'' }}"
+                                required
+                            >
+                            {% if form.birth_year.errors %}
+                                <span class="form-error">{{ form.birth_year.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jenis Kelamin -->
+                <div class="form-group">
+                    <label class="form-label required">Jenis Kelamin</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input 
+                                type="radio" 
+                                id="gender_pria" 
+                                name="gender" 
+                                value="pria"
+                                {% if form.gender.value == 'pria' %}checked{% endif %}
+                                required
+                            >
+                            <label for="gender_pria" class="radio-label">
+                                👨 Pria
+                            </label>
+                        </div>
+                        <div class="radio-item">
+                            <input 
+                                type="radio" 
+                                id="gender_wanita" 
+                                name="gender" 
+                                value="wanita"
+                                {% if form.gender.value == 'wanita' %}checked{% endif %}
+                                required
+                            >
+                            <label for="gender_wanita" class="radio-label">
+                                👩 Wanita
+                            </label>
+                        </div>
+                    </div>
+                    {% if form.gender.errors %}
+                        <span class="form-error">{{ form.gender.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password1" class="form-label required">Kata Sandi</label>
+                    <div class="input-group">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <input 
+                            type="password" 
+                            id="password1" 
+                            name="password1" 
+                            class="form-input"
+                            placeholder="Kata Sandi *"
+                            required
+                            onkeyup="checkPasswordStrength()"
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword('password1', 'showIcon1', 'hideIcon1')">
+                            <svg id="showIcon1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg id="hideIcon1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar" id="strength1"></div>
+                        <div class="strength-bar" id="strength2"></div>
+                        <div class="strength-bar" id="strength3"></div>
+                        <div class="strength-bar" id="strength4"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText"></div>
+                    {% if form.password1.errors %}
+                        <span class="form-error">{{ form.password1.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label for="password2" class="form-label required">Konfirmasi Kata Sandi</label>
+                    <div class="input-group">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <input 
+                            type="password" 
+                            id="password2" 
+                            name="password2" 
+                            class="form-input"
+                            placeholder="Konfirmasi Kata Sandi *"
+                            required
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword('password2', 'showIcon2', 'hideIcon2')">
+                            <svg id="showIcon2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg id="hideIcon2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
+                    {% if form.password2.errors %}
+                        <span class="form-error">{{ form.password2.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Terms & Conditions -->
+                <div class="form-checkbox">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        Saya setuju dengan <a href="#">Syarat & Ketentuan</a> dan <a href="#">Kebijakan Privasi</a> Kopi Hayf
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">
+                    Daftar Sekarang
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider">atau</div>
+
+            <!-- Footer -->
+            <div class="auth-footer">
+                Sudah punya akun? <a href="{% url 'dashboard:masuk' %}">Masuk Sekarang</a>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div style="text-align: center; margin-top: 24px;">
+            <a href="{% url 'dashboard:index' %}" class="auth-link" style="color: #6B5B4F;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Kembali ke Beranda
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle password visibility
+    function togglePassword(inputId, showIconId, hideIconId) {
+        const passwordInput = document.getElementById(inputId);
+        const showIcon = document.getElementById(showIconId);
+        const hideIcon = document.getElementById(hideIconId);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            showIcon.style.display = 'none';
+            hideIcon.style.display = 'block';
+        } else {
+            passwordInput.type = 'password';
+            showIcon.style.display = 'block';
+            hideIcon.style.display = 'none';
+        }
+    }
+
+    // Check password strength
+    function checkPasswordStrength() {
+        const password = document.getElementById('password1').value;
+        const strengthBars = [
+            document.getElementById('strength1'),
+            document.getElementById('strength2'),
+            document.getElementById('strength3'),
+            document.getElementById('strength4')
+        ];
+        const strengthText = document.getElementById('strengthText');
+
+        // Reset
+        strengthBars.forEach(bar => {
+            bar.classList.remove('active', 'weak', 'medium', 'strong');
+        });
+
+        if (password.length === 0) {
+            strengthText.textContent = '';
+            return;
+        }
+
+        let strength = 0;
+        
+        // Length check
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+        
+        // Character variety checks
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        // Cap at 4
+        strength = Math.min(strength, 4);
+
+        // Update bars
+        let strengthClass = 'weak';
+        let strengthLabel = 'Lemah';
+        
+        if (strength >= 3) {
+            strengthClass = 'strong';
+            strengthLabel = 'Kuat';
+        } else if (strength >= 2) {
+            strengthClass = 'medium';
+            strengthLabel = 'Sedang';
+        }
+
+        for (let i = 0; i < strength; i++) {
+            strengthBars[i].classList.add('active', strengthClass);
+        }
+
+        strengthText.textContent = `Kekuatan Password: ${strengthLabel}`;
+        strengthText.style.color = strengthClass === 'strong' ? '#4CAF50' : 
+                                    strengthClass === 'medium' ? '#FF9800' : '#F44336';
+    }
+
+    // Form validation
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        const firstName = document.getElementById('first_name').value.trim();
+        const lastName = document.getElementById('last_name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const birthDay = document.getElementById('birth_day').value;
+        const birthMonth = document.getElementById('birth_month').value;
+        const birthYear = document.getElementById('birth_year').value;
+        const gender = document.querySelector('input[name="gender"]:checked');
+        const password1 = document.getElementById('password1').value;
+        const password2 = document.getElementById('password2').value;
+        const terms = document.getElementById('terms').checked;
+
+        // Validasi field kosong
+        if (!firstName || !lastName || !email || !phone || !birthDay || !birthMonth || !birthYear || !gender) {
+            e.preventDefault();
+            alert('Semua field wajib diisi!');
+            return false;
+        }
+
+        // Validasi tanggal lahir
+        const day = parseInt(birthDay);
+        const month = parseInt(birthMonth);
+        const year = parseInt(birthYear);
+
+        if (day < 1 || day > 31) {
+            e.preventDefault();
+            alert('Hari harus antara 1-31');
+            return false;
+        }
+
+        if (month < 1 || month > 12) {
+            e.preventDefault();
+            alert('Bulan harus antara 1-12');
+            return false;
+        }
+
+        if (year < 1900 || year > 2024) {
+            e.preventDefault();
+            alert('Tahun tidak valid');
+            return false;
+        }
+
+        // Validasi umur minimal 13 tahun
+        const currentYear = new Date().getFullYear();
+        const age = currentYear - year;
+        if (age < 13) {
+            e.preventDefault();
+            alert('Anda harus berusia minimal 13 tahun untuk mendaftar');
+            return false;
+        }
+
+        // Validasi nomor telepon
+        if (!phone.startsWith('08') && !phone.startsWith('+62')) {
+            e.preventDefault();
+            alert('Nomor telepon harus diawali dengan 08 atau +62');
+            return false;
+        }
+
+        if (phone.length < 10) {
+            e.preventDefault();
+            alert('Nomor telepon minimal 10 digit');
+            return false;
+        }
+
+        // Validasi password
+        if (password1 !== password2) {
+            e.preventDefault();
+            alert('Password dan konfirmasi password tidak sama!');
+            return false;
+        }
+
+        if (password1.length < 8) {
+            e.preventDefault();
+            alert('Password minimal 8 karakter!');
+            return false;
+        }
+
+        // Validasi terms
+        if (!terms) {
+            e.preventDefault();
+            alert('Anda harus menyetujui Syarat & Ketentuan!');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

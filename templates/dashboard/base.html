@@ -1,0 +1,231 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Kopi Hayf - Premium Indonesian Coffee dengan kualitas terbaik dari Nusantara{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}kopi, coffee, kopi indonesia, premium coffee, arabica, robusta{% endblock %}">
+    <meta name="author" content="Kopi Hayf">
+    
+    <title>{% block title %}Kopi Hayf - Premium Indonesian Coffee{% endblock %}</title>
+    
+    <!-- Favicon untuk berbagai platform -->
+    <link rel="icon" type="image/x-icon" href="{% static 'dashboard/favicon/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'dashboard/favicon/favicon-16x16.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'dashboard/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="48x48" href="{% static 'dashboard/favicon/favicon-48x48.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'dashboard/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'dashboard/favicon/android-chrome-192x192.png' %}">
+    <meta name="msapplication-TileImage" content="{% static 'dashboard/favicon/mstile-150x150.png' %}">
+    <meta name="msapplication-TileColor" content="#FF8C00">
+    <meta name="theme-color" content="#FF8C00">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <!-- Logo -->
+                <div class="logo">
+                    <a href="{% url 'dashboard:index' %}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;" aria-label="Kopi Hayf Home">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M18 5H20C20.5523 5 21 5.44772 21 6V8C21 8.55228 20.5523 9 20 9H4C3.44772 9 3 8.55228 3 8V6C3 5.44772 3.44772 5 4 5H6" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M6 5V3C6 2.44772 6.44772 2 7 2H17C17.5523 2 18 2.44772 18 3V5" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M3 9V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V9" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Kopi Hayf</span>
+                    </a>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="nav" role="navigation" aria-label="Main navigation">
+                    <a href="{% url 'dashboard:index' %}" {% if request.resolver_match.url_name == 'index' %}class="active" aria-current="page"{% endif %}>Beranda</a>
+                    <a href="{% url 'dashboard:products' %}" {% if request.resolver_match.url_name == 'products' or request.resolver_match.url_name == 'product-detail' %}class="active" aria-current="page"{% endif %}>Katalog</a>
+                    <a href="{% url 'dashboard:about' %}" {% if request.resolver_match.url_name == 'about' %}class="active" aria-current="page"{% endif %}>Tentang</a>
+                    <a href="{% url 'dashboard:kontak' %}" {% if request.resolver_match.url_name == 'kontak' %}class="active" aria-current="page"{% endif %}>Kontak</a>
+                </nav>
+
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <!-- User Menu -->
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard:profile' %}" class="login-btn" aria-label="Profile {{ user.first_name|default:user.username }}">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="login-btn-text">{{ user.first_name|default:user.username }}</span>
+                        </a>
+                        <a href="{% url 'dashboard:logout' %}" class="logout-btn" style="font-size: 14px; color: #666; margin-left: 8px; text-decoration: none;" aria-label="Logout">Keluar</a>
+                    {% else %}
+                        <a href="{% url 'dashboard:masuk' %}" class="login-btn" aria-label="Login">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="login-btn-text">Masuk</span>
+                        </a>
+                    {% endif %}
+                    
+                    <!-- Cart Button -->
+                    <a href="{% url 'dashboard:view-cart' %}" class="cart-btn" id="cartBtn" aria-label="Keranjang Belanja">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M3 6H21L19 16H5L3 6Z" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 21C9.10457 21 10 20.1046 10 19C10 17.8954 9.10457 17 8 17C6.89543 17 6 17.8954 6 19C6 20.1046 6.89543 21 8 21Z" stroke="#1A1A1A" stroke-width="2"/>
+                            <path d="M16 21C17.1046 21 18 20.1046 18 19C18 17.8954 17.1046 17 16 17C14.8954 17 14 17.8954 14 19C14 20.1046 14.8954 21 16 21Z" stroke="#1A1A1A" stroke-width="2"/>
+                        </svg>
+                        <span class="cart-btn-text">Keranjang</span>
+                        {% if cart_count > 0 %}
+                            <span class="cart-badge" id="cartBadge">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container" style="position: fixed; top: 80px; right: 24px; z-index: 10000; max-width: 400px;" role="alert" aria-live="polite">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" style="background: {% if message.tags == 'success' %}#D1FAE5{% elif message.tags == 'error' %}#FEE2E2{% elif message.tags == 'warning' %}#FEF3C7{% else %}#DBEAFE{% endif %}; color: {% if message.tags == 'success' %}#065F46{% elif message.tags == 'error' %}#991B1B{% elif message.tags == 'warning' %}#92400E{% else %}#1E40AF{% endif %}; padding: 16px 20px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s ease;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                {% if message.tags == 'success' %}
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                {% elif message.tags == 'error' %}
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                {% else %}
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                {% endif %}
+            </svg>
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; cursor: pointer; color: inherit; opacity: 0.7; font-size: 18px;" aria-label="Close message">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+    <script>
+        // Auto-dismiss messages after 5 seconds
+        setTimeout(() => {
+            const messagesContainer = document.querySelector('.messages-container');
+            if (messagesContainer) {
+                messagesContainer.style.opacity = '0';
+                messagesContainer.style.transition = 'opacity 0.5s';
+                setTimeout(() => messagesContainer.remove(), 500);
+            }
+        }, 5000);
+    </script>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" style="background: #1a1a1a; color: #fff; padding: 60px 0 20px;" role="contentinfo">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px;">
+                <!-- About -->
+                <div>
+                    <h3 style="margin-bottom: 16px; font-size: 18px; color: #FF8C00;">Kopi Hayf</h3>
+                    <p style="color: #999; font-size: 14px; line-height: 1.6;">
+                        Kopi premium Indonesia dengan kualitas terbaik untuk pengalaman ngopi yang sempurna.
+                    </p>
+                    <div style="margin-top: 16px; display: flex; gap: 12px;">
+                        <!-- Social Media Icons (placeholder) -->
+                        <a href="#" style="color: #999; text-decoration: none;" aria-label="Facebook">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="#" style="color: #999; text-decoration: none;" aria-label="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </a>
+                        <a href="#" style="color: #999; text-decoration: none;" aria-label="Twitter">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h3 style="margin-bottom: 16px; font-size: 18px;">Menu</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 8px;"><a href="{% url 'dashboard:index' %}" style="color: #999; text-decoration: none; font-size: 14px;">Beranda</a></li>
+                        <li style="margin-bottom: 8px;"><a href="{% url 'dashboard:products' %}" style="color: #999; text-decoration: none; font-size: 14px;">Katalog</a></li>
+                        <li style="margin-bottom: 8px;"><a href="{% url 'dashboard:about' %}" style="color: #999; text-decoration: none; font-size: 14px;">Tentang</a></li>
+                        <li style="margin-bottom: 8px;"><a href="{% url 'dashboard:kontak' %}" style="color: #999; text-decoration: none; font-size: 14px;">Kontak</a></li>
+                        {% if user.is_authenticated %}
+                        <li style="margin-bottom: 8px;"><a href="{% url 'dashboard:profile' %}" style="color: #999; text-decoration: none; font-size: 14px;">Profile</a></li>
+                        <li style="margin-bottom: 8px;"><a href="{% url 'dashboard:order-list' %}" style="color: #999; text-decoration: none; font-size: 14px;">Pesanan Saya</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <!-- Customer Service -->
+                <div>
+                    <h3 style="margin-bottom: 16px; font-size: 18px;">Layanan</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 8px;"><a href="#" style="color: #999; text-decoration: none; font-size: 14px;">FAQ</a></li>
+                        <li style="margin-bottom: 8px;"><a href="#" style="color: #999; text-decoration: none; font-size: 14px;">Cara Pesan</a></li>
+                        <li style="margin-bottom: 8px;"><a href="#" style="color: #999; text-decoration: none; font-size: 14px;">Pengiriman</a></li>
+                        <li style="margin-bottom: 8px;"><a href="#" style="color: #999; text-decoration: none; font-size: 14px;">Kebijakan Return</a></li>
+                        <li style="margin-bottom: 8px;"><a href="#" style="color: #999; text-decoration: none; font-size: 14px;">Syarat & Ketentuan</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact -->
+                <div>
+                    <h3 style="margin-bottom: 16px; font-size: 18px;">Kontak</h3>
+                    <p style="color: #999; font-size: 14px; margin-bottom: 8px;">📧 hello@kopihayf.com</p>
+                    <p style="color: #999; font-size: 14px; margin-bottom: 8px;">📞 +62 812-3456-7890</p>
+                    <p style="color: #999; font-size: 14px; margin-bottom: 8px;">📍 Jakarta, Indonesia</p>
+                    <p style="color: #999; font-size: 14px;">🕐 Senin - Jumat: 09:00 - 17:00</p>
+                </div>
+            </div>
+            
+            <div style="border-top: 1px solid #333; padding-top: 20px; text-align: center; color: #999; font-size: 14px;">
+                <p>&copy; 2025 Kopi Hayf. All rights reserved. Made with ❤️ and ☕</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{% static 'dashboard/js/script.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Additional Scripts -->
+    <script>
+        // Update cart badge when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const cartBadge = document.getElementById('cartBadge');
+            if (cartBadge) {
+                const count = parseInt(cartBadge.textContent);
+                if (count === 0) {
+                    cartBadge.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

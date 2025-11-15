@@ -1,0 +1,241 @@
+<!-- order_list.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesanan Saya - Kopi Hayf</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <style>
+        .orders-page {
+            padding: 60px 0;
+            background: #f9f9f9;
+            min-height: 70vh;
+        }
+        
+        .orders-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 32px;
+        }
+        
+        .order-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 16px;
+        }
+        
+        .order-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .order-date {
+            color: #666;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .order-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: #FEF3C7; color: #92400E; }
+        .status-processing { background: #DBEAFE; color: #1E40AF; }
+        .status-shipped { background: #E0E7FF; color: #5B21B6; }
+        .status-delivered { background: #D1FAE5; color: #065F46; }
+        .status-cancelled { background: #FEE2E2; color: #991B1B; }
+        
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .order-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 2px solid #eee;
+        }
+        
+        .order-total {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FF8C00;
+        }
+        
+        .view-detail-btn {
+            padding: 10px 20px;
+            background: #FF8C00;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .view-detail-btn:hover {
+            background: #E67E00;
+            transform: translateY(-2px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .order-footer {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (sama seperti profile.html) -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 5H20C20.5523 5 21 5.44772 21 6V8C21 8.55228 20.5523 9 20 9H4C3.44772 9 3 8.55228 3 8V6C3 5.44772 3.44772 5 4 5H6" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M6 5V3C6 2.44772 6.44772 2 7 2H17C17.5523 2 18 2.44772 18 3V5" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M3 9V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V9" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Kopi Hayf</span>
+                </div>
+                <nav class="nav">
+                    <a href="{% url 'dashboard:index' %}">Beranda</a>
+                    <a href="{% url 'dashboard:products' %}">Katalog</a>
+                    <a href="{% url 'dashboard:about' %}">Tentang</a>
+                    <a href="{% url 'dashboard:kontak' %}">Kontak</a>
+                </nav>
+                <div class="header-actions">
+                    <a href="{% url 'dashboard:profile' %}" class="login-btn">
+                        <span class="login-btn-text">{{ user.first_name|default:user.username }}</span>
+                    </a>
+                    <a href="{% url 'dashboard:view-cart' %}" class="cart-btn">
+                        <span class="cart-btn-text">Keranjang</span>
+                        <span class="cart-badge">{{ cart_count|default:0 }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Orders Page -->
+    <section class="orders-page">
+        <div class="orders-container">
+            <h1 class="page-title">Pesanan Saya</h1>
+
+            {% if orders %}
+                {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-number">{{ order.order_number }}</div>
+                            <div class="order-date">{{ order.created_at|date:"d M Y, H:i" }}</div>
+                        </div>
+                        <div class="order-status status-{{ order.status }}">
+                            {{ order.get_status_display }}
+                        </div>
+                    </div>
+
+                    <div class="order-items">
+                        {% for item in order.items.all|slice:":3" %}
+                        <div class="order-item-row">
+                            <div>
+                                <strong>{{ item.product.name }}</strong>
+                                <span style="color: #666;"> × {{ item.quantity }}</span>
+                            </div>
+                            <div style="font-weight: 600;">
+                                Rp {{ item.total|floatformat:0 }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if order.items.count > 3 %}
+                        <div style="text-align: center; color: #666; font-size: 14px;">
+                            +{{ order.items.count|add:"-3" }} produk lainnya
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="order-footer">
+                        <div>
+                            <div style="color: #666; font-size: 14px; margin-bottom: 4px;">Total Pembayaran</div>
+                            <div class="order-total">Rp {{ order.total|floatformat:0 }}</div>
+                        </div>
+                        <a href="{% url 'dashboard:order-detail' pk=order.id %}" class="view-detail-btn">
+                            Lihat Detail
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" style="margin: 0 auto 24px;">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    <h2 style="font-size: 24px; margin-bottom: 12px;">Belum Ada Pesanan</h2>
+                    <p style="color: #666; margin-bottom: 24px;">Yuk mulai belanja dan buat pesanan pertama Anda!</p>
+                    <a href="{% url 'dashboard:products' %}" class="view-detail-btn">Mulai Belanja</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <script src="{% static 'dashboard/js/script.js' %}"></script>
+</body>
+</html>
+
+

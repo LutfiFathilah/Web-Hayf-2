@@ -1,0 +1,655 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - Kopi Hayf</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/css/katalog.css' %}">
+    <style>
+        .product-detail-section {
+            padding: 60px 0;
+            background: #fff;
+        }
+        
+        .product-detail-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+        
+        .product-image-main {
+            position: relative;
+        }
+        
+        .product-image-main img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .product-badges {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .badge {
+            background: #FF8C00;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .product-info-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .product-title-main {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+        }
+        
+        .product-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .rating-stars {
+            color: #FFB800;
+            font-size: 20px;
+        }
+        
+        .rating-text {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .product-price-main {
+            font-size: 36px;
+            font-weight: 700;
+            color: #FF8C00;
+        }
+        
+        .product-description-main {
+            color: #666;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        
+        .product-stock {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .stock-available {
+            color: #10b981;
+        }
+        
+        .stock-low {
+            color: #f59e0b;
+        }
+        
+        .stock-out {
+            color: #ef4444;
+        }
+        
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .quantity-label {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .qty-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .qty-btn:hover {
+            background: #FF8C00;
+            color: white;
+        }
+        
+        .qty-input {
+            width: 60px;
+            height: 40px;
+            border: none;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .add-to-cart-main {
+            padding: 16px 32px;
+            background: #FF8C00;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+        
+        .add-to-cart-main:hover {
+            background: #E67E00;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 140, 0, 0.3);
+        }
+        
+        .product-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding: 24px 0;
+            border-top: 1px solid #eee;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: #FF8C00;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .tabs {
+            margin: 40px 0 24px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 16px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #FF8C00;
+            border-bottom-color: #FF8C00;
+        }
+        
+        .tab-content {
+            padding: 32px 0;
+        }
+        
+        .review-item {
+            padding: 24px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .review-author {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .review-date {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .review-rating {
+            color: #FFB800;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        
+        .review-text {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 968px) {
+            .product-detail-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header (imported from base template or add here) -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <a href="{% url 'dashboard:index' %}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 5H20C20.5523 5 21 5.44772 21 6V8C21 8.55228 20.5523 9 20 9H4C3.44772 9 3 8.55228 3 8V6C3 5.44772 3.44772 5 4 5H6" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M6 5V3C6 2.44772 6.44772 2 7 2H17C17.5523 2 18 2.44772 18 3V5" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M3 9V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V9" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Kopi Hayf</span>
+                    </a>
+                </div>
+                <nav class="nav">
+                    <a href="{% url 'dashboard:index' %}">Beranda</a>
+                    <a href="{% url 'dashboard:products' %}" class="active">Katalog</a>
+                    <a href="{% url 'dashboard:about' %}">Tentang</a>
+                    <a href="{% url 'dashboard:kontak' %}">Kontak</a>
+                </nav>
+                <div class="header-actions">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard:profile' %}" class="login-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="login-btn-text">{{ user.first_name|default:user.username }}</span>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'dashboard:masuk' %}" class="login-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="login-btn-text">Masuk</span>
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'dashboard:view-cart' %}" class="cart-btn" id="cartBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6H21L19 16H5L3 6Z" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 21C9.10457 21 10 20.1046 10 19C10 17.8954 9.10457 17 8 17C6.89543 17 6 17.8954 6 19C6 20.1046 6.89543 21 8 21Z" stroke="#1A1A1A" stroke-width="2"/>
+                            <path d="M16 21C17.1046 21 18 20.1046 18 19C18 17.8954 17.1046 17 16 17C14.8954 17 14 17.8954 14 19C14 20.1046 14.8954 21 16 21Z" stroke="#1A1A1A" stroke-width="2"/>
+                        </svg>
+                        <span class="cart-btn-text">Keranjang</span>
+                        {% if cart_count > 0 %}
+                            <span class="cart-badge" id="cartBadge">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Product Detail Section -->
+    <section class="product-detail-section">
+        <div class="container">
+            <div class="product-detail-container">
+                <div class="product-image-main">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800" alt="{{ product.name }}">
+                    {% endif %}
+                    
+                    <div class="product-badges">
+                        {% if product.is_featured %}
+                            <span class="badge">Unggulan</span>
+                        {% endif %}
+                        {% if product.get_discount_percentage > 0 %}
+                            <span class="badge" style="background: #ef4444;">Sale {{ product.get_discount_percentage }}%</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="product-info-main">
+                    <h1 class="product-title-main">{{ product.name }}</h1>
+                    
+                    <div class="product-meta">
+                        <div class="rating-display">
+                            <span class="rating-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.rating %}⭐{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                            <span class="rating-text">{{ product.rating|floatformat:1 }} ({{ product.total_reviews }} review)</span>
+                        </div>
+                        <span style="color: #999;">|</span>
+                        <span style="color: #666;">{{ product.category.name }}</span>
+                    </div>
+                    
+                    <div class="product-price-main">Rp {{ product.price|floatformat:0 }}</div>
+                    
+                    <p class="product-description-main">{{ product.description }}</p>
+                    
+                    <div class="product-stock {% if product.stock > 20 %}stock-available{% elif product.stock > 0 %}stock-low{% else %}stock-out{% endif %}">
+                        {% if product.stock > 20 %}
+                            ✓ Stok Tersedia ({{ product.stock }} unit)
+                        {% elif product.stock > 0 %}
+                            ⚠ Stok Terbatas ({{ product.stock }} unit tersisa)
+                        {% else %}
+                            ✗ Stok Habis
+                        {% endif %}
+                    </div>
+                    
+                    {% if product.stock > 0 %}
+                    <div class="quantity-selector">
+                        <span class="quantity-label">Jumlah:</span>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" id="qtyMinus">−</button>
+                            <input type="number" class="qty-input" id="quantity" value="1" min="1" max="{{ product.stock }}">
+                            <button class="qty-btn" id="qtyPlus">+</button>
+                        </div>
+                    </div>
+                    
+                    <button class="add-to-cart-main" onclick="addToCartDetail()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6H21L19 16H5L3 6Z"/>
+                            <circle cx="9" cy="20" r="1"/>
+                            <circle cx="20" cy="20" r="1"/>
+                        </svg>
+                        Tambah ke Keranjang
+                    </button>
+                    {% else %}
+                    <button class="add-to-cart-main" disabled style="background: #ccc; cursor: not-allowed;">
+                        Stok Habis
+                    </button>
+                    {% endif %}
+                    
+                    <div class="product-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div>
+                                <div style="font-weight: 600;">Kualitas Terjamin</div>
+                                <div style="font-size: 12px; color: #666;">100% Original</div>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🚚</div>
+                            <div>
+                                <div style="font-weight: 600;">Gratis Ongkir</div>
+                                <div style="font-size: 12px; color: #666;">Min. Rp 750k</div>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">↩</div>
+                            <div>
+                                <div style="font-weight: 600;">Garansi Retur</div>
+                                <div style="font-size: 12px; color: #666;">30 Hari</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchTab('description')">Deskripsi</button>
+                    <button class="tab-btn" onclick="switchTab('reviews')">Review ({{ reviews.count }})</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="descriptionTab">
+                <h3 style="margin-bottom: 16px;">Detail Produk</h3>
+                <p style="line-height: 1.8; color: #666;">{{ product.description }}</p>
+            </div>
+
+            <div class="tab-content" id="reviewsTab" style="display: none;">
+                <h3 style="margin-bottom: 24px;">Review Pelanggan</h3>
+                
+                {% for review in reviews %}
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="review-author">{{ review.customer.user.get_full_name|default:review.customer.user.username }}</span>
+                        <span class="review-date">{{ review.created_at|date:"d M Y" }}</span>
+                    </div>
+                    <div class="review-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% if review.title %}
+                    <h4 style="margin: 8px 0;">{{ review.title }}</h4>
+                    {% endif %}
+                    <p class="review-text">{{ review.comment }}</p>
+                </div>
+                {% empty %}
+                <p style="text-align: center; color: #999; padding: 40px 0;">Belum ada review untuk produk ini</p>
+                {% endfor %}
+            </div>
+
+            <!-- Related Products -->
+            {% if related_products %}
+            <div style="margin-top: 60px;">
+                <h2 style="margin-bottom: 24px;">Produk Terkait</h2>
+                <div class="product-grid">
+                    {% for related in related_products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            <a href="{% url 'dashboard:product-detail' slug=related.slug %}">
+                                {% if related.image %}
+                                    <img src="{{ related.image.url }}" alt="{{ related.name }}">
+                                {% else %}
+                                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400" alt="{{ related.name }}">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="product-details">
+                            <h3 class="product-title">
+                                <a href="{% url 'dashboard:product-detail' slug=related.slug %}">{{ related.name }}</a>
+                            </h3>
+                            <div class="product-footer">
+                                <span class="product-price">Rp {{ related.price|floatformat:0 }}</span>
+                                <div class="product-rating">
+                                    <span class="star">⭐</span>
+                                    <span class="rating-value">{{ related.rating|floatformat:1 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <script src="{% static 'dashboard/js/script.js' %}"></script>
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            
+            if (tab === 'description') {
+                document.querySelector('[onclick="switchTab(\'description\')"]').classList.add('active');
+                document.getElementById('descriptionTab').style.display = 'block';
+            } else {
+                document.querySelector('[onclick="switchTab(\'reviews\')"]').classList.add('active');
+                document.getElementById('reviewsTab').style.display = 'block';
+            }
+        }
+        
+        // Function to update cart badge in header
+        function updateCartBadge(cartCount) {
+            const cartBadge = document.getElementById('cartBadge');
+            
+            if (cartCount > 0) {
+                if (cartBadge) {
+                    // Update existing badge
+                    cartBadge.textContent = cartCount;
+                    cartBadge.style.display = 'inline-block';
+                } else {
+                    // Create new badge if it doesn't exist
+                    const cartBtn = document.getElementById('cartBtn');
+                    if (cartBtn) {
+                        const newBadge = document.createElement('span');
+                        newBadge.className = 'cart-badge';
+                        newBadge.id = 'cartBadge';
+                        newBadge.textContent = cartCount;
+                        cartBtn.appendChild(newBadge);
+                    }
+                }
+            } else {
+                if (cartBadge) {
+                    cartBadge.style.display = 'none';
+                }
+            }
+        }
+        
+        function addToCartDetail() {
+            const quantity = document.getElementById('quantity').value;
+            const productId = {{ product.id }};
+            
+            // Disable button temporarily
+            const addButton = document.querySelector('.add-to-cart-main');
+            const originalText = addButton.innerHTML;
+            addButton.disabled = true;
+            addButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Menambahkan...';
+            
+            // Send AJAX request
+            fetch(`/cart/add/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `quantity=${quantity}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart badge immediately
+                    updateCartBadge(data.cart_count);
+                    
+                    // Show success message
+                    addButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Berhasil!';
+                    addButton.style.background = '#10b981';
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        addButton.innerHTML = originalText;
+                        addButton.style.background = '';
+                        addButton.disabled = false;
+                    }, 2000);
+                    
+                    // Show alert
+                    alert(data.message || 'Produk berhasil ditambahkan ke keranjang!');
+                } else {
+                    // Show error
+                    alert(data.error || 'Gagal menambahkan produk ke keranjang');
+                    addButton.innerHTML = originalText;
+                    addButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+                addButton.innerHTML = originalText;
+                addButton.disabled = false;
+            });
+        }
+        
+        // Quantity controls
+        document.addEventListener('DOMContentLoaded', function() {
+            const qtyInput = document.getElementById('quantity');
+            const qtyMinus = document.getElementById('qtyMinus');
+            const qtyPlus = document.getElementById('qtyPlus');
+            const maxStock = {{ product.stock }};
+            
+            if (qtyMinus) {
+                qtyMinus.addEventListener('click', function() {
+                    const currentValue = parseInt(qtyInput.value) || 1;
+                    if (currentValue > 1) {
+                        qtyInput.value = currentValue - 1;
+                    }
+                });
+            }
+            
+            if (qtyPlus) {
+                qtyPlus.addEventListener('click', function() {
+                    const currentValue = parseInt(qtyInput.value) || 1;
+                    if (currentValue < maxStock) {
+                        qtyInput.value = currentValue + 1;
+                    }
+                });
+            }
+            
+            // Validate quantity input
+            if (qtyInput) {
+                qtyInput.addEventListener('change', function() {
+                    let value = parseInt(this.value) || 1;
+                    if (value < 1) value = 1;
+                    if (value > maxStock) value = maxStock;
+                    this.value = value;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

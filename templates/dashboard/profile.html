@@ -1,0 +1,853 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Profil Saya - Kopi Hayf{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== MODERN PROFILE PAGE ==================== */
+    .profile-page {
+        padding: 40px 0 80px;
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFFFFF 100%);
+        min-height: calc(100vh - 80px);
+    }
+    
+    .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* ==================== HERO PROFILE CARD ==================== */
+    .profile-hero {
+        background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
+        border-radius: 24px;
+        padding: 48px;
+        margin-bottom: 32px;
+        box-shadow: 0 8px 32px rgba(255, 140, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .profile-hero-content {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .profile-avatar-wrapper {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .profile-avatar {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #FF8C00;
+        font-size: 56px;
+        font-weight: 700;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        border: 6px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .avatar-badge {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        width: 36px;
+        height: 36px;
+        background: #10B981;
+        border-radius: 50%;
+        border: 4px solid #FF8C00;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .avatar-badge svg {
+        width: 18px;
+        height: 18px;
+        color: white;
+    }
+    
+    .profile-hero-info {
+        flex: 1;
+        color: white;
+    }
+    
+    .profile-hero-info h1 {
+        font-size: 36px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+    
+    .profile-hero-info p {
+        font-size: 18px;
+        opacity: 0.95;
+        margin-bottom: 4px;
+    }
+
+    .profile-meta {
+        display: flex;
+        gap: 32px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 8px 16px;
+        border-radius: 50px;
+        backdrop-filter: blur(10px);
+    }
+
+    .meta-item svg {
+        width: 18px;
+        height: 18px;
+        opacity: 0.9;
+    }
+    
+    .profile-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-hero {
+        padding: 12px 28px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-edit-hero {
+        background: white;
+        color: #FF8C00;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-edit-hero:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-logout-hero {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+    }
+    
+    .btn-logout-hero:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* ==================== STATS CARDS ==================== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        border-color: #FFE5CC;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFE5CC 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .stat-icon svg {
+        width: 24px;
+        height: 24px;
+        color: #FF8C00;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 800;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    }
+
+    /* ==================== CONTENT GRID ==================== */
+    .profile-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    
+    .profile-card {
+        background: white;
+        padding: 28px;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .profile-card:hover {
+        border-color: #FFE5CC;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .card-title-icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFE5CC 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-title-icon svg {
+        width: 18px;
+        height: 18px;
+        color: #FF8C00;
+    }
+
+    .card-badge {
+        padding: 6px 12px;
+        background: #FFF8F0;
+        color: #FF8C00;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        color: #666;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-label svg {
+        width: 16px;
+        height: 16px;
+        color: #999;
+    }
+    
+    .info-value {
+        font-weight: 600;
+        color: #1a1a1a;
+        text-align: right;
+        max-width: 60%;
+        word-break: break-word;
+    }
+
+    /* ==================== RECENT ITEMS ==================== */
+    .recent-items {
+        margin-top: 20px;
+    }
+
+    .recent-item {
+        padding: 16px;
+        background: #F9F9F9;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .recent-item:hover {
+        background: white;
+        border-color: #FFE5CC;
+        transform: translateX(4px);
+    }
+
+    .item-info {
+        flex: 1;
+    }
+
+    .item-title {
+        font-weight: 600;
+        color: #1a1a1a;
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .item-subtitle {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .item-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .badge-pending {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+
+    .badge-processing {
+        background: #DBEAFE;
+        color: #1E40AF;
+    }
+
+    .badge-completed {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+
+    .badge-cancelled {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: #999;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #F5F5F5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+
+    .empty-icon svg {
+        width: 40px;
+        height: 40px;
+        color: #CCC;
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        color: #999;
+        margin-bottom: 20px;
+    }
+
+    .empty-state a {
+        color: #FF8C00;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .empty-state a:hover {
+        text-decoration: underline;
+    }
+
+    /* ==================== FULL WIDTH CARD ==================== */
+    .profile-card-full {
+        grid-column: 1 / -1;
+    }
+
+    .account-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 968px) {
+        .profile-hero {
+            padding: 32px 24px;
+        }
+
+        .profile-hero-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .profile-actions {
+            justify-content: center;
+        }
+
+        .profile-content {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .profile-hero {
+            padding: 24px 20px;
+        }
+
+        .profile-hero-info h1 {
+            font-size: 28px;
+        }
+
+        .profile-meta {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-row {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-value {
+            text-align: left;
+            max-width: 100%;
+        }
+
+        .account-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .profile-hero,
+    .stat-card,
+    .profile-card {
+        animation: fadeInUp 0.6s ease-out backwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .profile-card:nth-child(1) { animation-delay: 0.5s; }
+    .profile-card:nth-child(2) { animation-delay: 0.6s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <div class="profile-container">
+        <!-- Hero Profile Card -->
+        <div class="profile-hero">
+            <div class="profile-hero-content">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar">
+                        {% if customer.profile_image %}
+                            <img src="{{ customer.profile_image.url }}" alt="{{ user.get_full_name|default:user.username }}">
+                        {% else %}
+                            <span>{{ user.first_name.0|default:user.username.0|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="avatar-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M20 6L9 17l-5-5"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="profile-hero-info">
+                    <h1>{{ user.get_full_name|default:user.username }}</h1>
+                    <p>{{ user.email }}</p>
+                    
+                    <div class="profile-meta">
+                        <div class="meta-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="8.5" cy="7" r="4"/>
+                                <path d="M20 8v6M23 11h-6"/>
+                            </svg>
+                            <span>Member sejak {{ user.date_joined|date:"M Y" }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            <span>Verified Account</span>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <a href="{% url 'dashboard:profile-edit' %}" class="btn-hero btn-edit-hero">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Edit Profil
+                        </a>
+                        <a href="{% url 'dashboard:logout' %}" class="btn-hero btn-logout-hero">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                <polyline points="16 17 21 12 16 7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                </div>
+                <div class="stat-value">{{ customer.orders.count }}</div>
+                <div class="stat-label">Total Pesanan</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div class="stat-value">Rp {{ customer.total_spent|floatformat:0 }}</div>
+                <div class="stat-label">Total Belanja</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                </div>
+                <div class="stat-value">{{ customer.reviews.count }}</div>
+                <div class="stat-label">Total Review</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </div>
+                <div class="stat-value">{{ user.date_joined|timesince }}</div>
+                <div class="stat-label">Member Sejak</div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="profile-content">
+            <!-- Contact Info -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <div class="card-title-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </div>
+                        Informasi Kontak
+                    </h3>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        Email
+                    </span>
+                    <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Nama Lengkap
+                    </span>
+                    <span class="info-value">{{ user.get_full_name|default:user.username }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                        Telepon
+                    </span>
+                    <span class="info-value">{{ customer.phone|default:"Belum diisi" }}</span>
+                </div>
+            </div>
+
+            <!-- Address Info -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <div class="card-title-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                        </div>
+                        Alamat Pengiriman
+                    </h3>
+                    {% if customer.address %}
+                    <span class="card-badge">✓ Lengkap</span>
+                    {% endif %}
+                </div>
+                
+                {% if customer.address %}
+                    <div class="info-row">
+                        <span class="info-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                            Alamat
+                        </span>
+                        <span class="info-value">{{ customer.address }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Kota</span>
+                        <span class="info-value">{{ customer.city }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Provinsi</span>
+                        <span class="info-value">{{ customer.state }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Kode Pos</span>
+                        <span class="info-value">{{ customer.postal_code }}</span>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                        </div>
+                        <h3>Belum ada alamat</h3>
+                        <p>Lengkapi alamat pengiriman Anda</p>
+                        <a href="{% url 'dashboard:profile-edit' %}">Tambah Alamat →</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <div class="card-title-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18l-2 13H5L3 6z"/>
+                                <circle cx="9" cy="21" r="1"/>
+                                <circle cx="20" cy="21" r="1"/>
+                            </svg>
+                        </div>
+                        Pesanan Terbaru
+                    </h3>
+                    <a href="{% url 'dashboard:order-list' %}" class="card-badge">Lihat Semua</a>
+                </div>
+                
+                {% if recent_orders %}
+                    <div class="recent-items">
+                        {% for order in recent_orders %}
+                        <a href="{% url 'dashboard:order-detail' pk=order.id %}" class="recent-item" style="text-decoration: none;">
+                            <div class="item-info">
+                                <div class="item-title">#{{ order.order_number }}</div>
+                                <div class="item-subtitle">{{ order.created_at|date:"d M Y" }} • Rp {{ order.total|floatformat:0 }}</div>
+                            </div>
+                            <span class="item-badge badge-{{ order.status }}">
+                                {% if order.status == 'pending' %}Menunggu
+                                {% elif order.status == 'processing' %}Diproses
+                                {% elif order.status == 'delivered' %}Selesai
+                                {% else %}{{ order.get_status_display }}
+                                {% endif %}
+                            </span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7"/>
+                                <rect x="14" y="3" width="7" height="7"/>
+                                <rect x="14" y="14" width="7" height="7"/>
+                                <rect x="3" y="14" width="7" height="7"/>
+                            </svg>
+                        </div>
+                        <h3>Belum ada pesanan</h3>
+                        <p>Mulai belanja sekarang!</p>
+                        <a href="{% url 'dashboard:products' %}">Belanja Sekarang →</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Reviews -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <div class="card-title-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                        Review Terbaru
+                    </h3>
+                </div>
+                
+                {% if recent_reviews %}
+                    <div class="recent-items">
+                        {% for review in recent_reviews %}
+                        <div class="recent-item">
+                            <div class="item-info">
+                                <div class="item-title">{{ review.product.name }}</div>
+                                <div class="item-subtitle">
+                                    <span style="color: #FFB800;">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                        {% endfor %}
+                                    </span>
+                                    • {{ review.created_at|date:"d M Y" }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                        <h3>Belum ada review</h3>
+                        <p>Berikan review pada produk yang sudah dibeli</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

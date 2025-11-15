@@ -1,0 +1,348 @@
+<!-- ============================================ -->
+<!-- order_detail.html -->
+<!-- BUAT FILE TERPISAH: order_detail.html -->
+<!-- ============================================ -->
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Pesanan {{ order.order_number }} - Kopi Hayf</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <style>
+        .order-detail-page {
+            padding: 60px 0;
+            background: #f9f9f9;
+            min-height: 70vh;
+        }
+        
+        .order-detail-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            text-decoration: none;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            color: #FF8C00;
+        }
+        
+        .detail-card {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 24px;
+        }
+        
+        .info-section {
+            margin-bottom: 32px;
+        }
+        
+        .info-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .info-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .order-item-detail {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .item-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .item-info {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .item-price {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .price-summary {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            color: #666;
+        }
+        
+        .price-row.total {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid #ddd;
+        }
+        
+        .price-row.total .price-value {
+            color: #FF8C00;
+        }
+        
+        @media (max-width: 768px) {
+            .detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .order-item-detail {
+                flex-direction: column;
+            }
+            
+            .item-image {
+                width: 100%;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 5H20C20.5523 5 21 5.44772 21 6V8C21 8.55228 20.5523 9 20 9H4C3.44772 9 3 8.55228 3 8V6C3 5.44772 3.44772 5 4 5H6" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M6 5V3C6 2.44772 6.44772 2 7 2H17C17.5523 2 18 2.44772 18 3V5" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M3 9V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V9" stroke="#FF8C00" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Kopi Hayf</span>
+                </div>
+                <nav class="nav">
+                    <a href="{% url 'dashboard:index' %}">Beranda</a>
+                    <a href="{% url 'dashboard:products' %}">Katalog</a>
+                    <a href="{% url 'dashboard:about' %}">Tentang</a>
+                    <a href="{% url 'dashboard:kontak' %}">Kontak</a>
+                </nav>
+                <div class="header-actions">
+                    <a href="{% url 'dashboard:profile' %}" class="login-btn">
+                        <span class="login-btn-text">{{ user.first_name|default:user.username }}</span>
+                    </a>
+                    <a href="{% url 'dashboard:view-cart' %}" class="cart-btn">
+                        <span class="cart-btn-text">Keranjang</span>
+                        <span class="cart-badge">{{ cart_count|default:0 }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Order Detail Page -->
+    <section class="order-detail-page">
+        <div class="order-detail-container">
+            <a href="{% url 'dashboard:order-list' %}" class="back-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Kembali ke Daftar Pesanan
+            </a>
+
+            <div class="detail-card">
+                <div class="detail-header">
+                    <div>
+                        <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">
+                            {{ order.order_number }}
+                        </h1>
+                        <p style="color: #666; font-size: 14px;">
+                            Dipesan pada {{ order.created_at|date:"d F Y, H:i" }}
+                        </p>
+                    </div>
+                    <div class="order-status status-{{ order.status }}">
+                        {{ order.get_status_display }}
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="info-section">
+                    <h3 class="info-title">Produk yang Dipesan</h3>
+                    {% for item in order.items.all %}
+                    <div class="order-item-detail">
+                        <div class="item-image">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=200" alt="{{ item.product.name }}">
+                            {% endif %}
+                        </div>
+                        <div class="item-info">
+                            <div class="item-name">{{ item.product.name }}</div>
+                            <div class="item-price">Rp {{ item.price|floatformat:0 }} × {{ item.quantity }}</div>
+                        </div>
+                        <div style="text-align: right; min-width: 120px;">
+                            <div style="font-weight: 700; font-size: 18px;">
+                                Rp {{ item.total|floatformat:0 }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Shipping Information -->
+                <div class="info-section">
+                    <h3 class="info-title">Alamat Pengiriman</h3>
+                    <div class="info-row">
+                        <span class="info-label">Alamat</span>
+                        <span class="info-value" style="text-align: right; max-width: 60%;">
+                            {{ order.shipping_address }}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Kota</span>
+                        <span class="info-value">{{ order.shipping_city }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Provinsi</span>
+                        <span class="info-value">{{ order.shipping_state }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Kode Pos</span>
+                        <span class="info-value">{{ order.shipping_postal_code }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Negara</span>
+                        <span class="info-value">{{ order.shipping_country }}</span>
+                    </div>
+                </div>
+
+                <!-- Payment Information -->
+                <div class="info-section">
+                    <h3 class="info-title">Informasi Pembayaran</h3>
+                    <div class="info-row">
+                        <span class="info-label">Status Pembayaran</span>
+                        <span class="info-value">
+                            <span class="order-status status-{{ order.payment_status }}">
+                                {{ order.get_payment_status_display }}
+                            </span>
+                        </span>
+                    </div>
+                    {% if order.tracking_number %}
+                    <div class="info-row">
+                        <span class="info-label">Nomor Resi</span>
+                        <span class="info-value">{{ order.tracking_number }}</span>
+                    </div>
+                    {% endif %}
+                    {% if order.notes %}
+                    <div class="info-row">
+                        <span class="info-label">Catatan</span>
+                        <span class="info-value" style="text-align: right; max-width: 60%;">
+                            {{ order.notes }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Price Summary -->
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span>Subtotal</span>
+                        <span>Rp {{ order.subtotal|floatformat:0 }}</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Pajak</span>
+                        <span>Rp {{ order.tax|floatformat:0 }}</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Ongkos Kirim</span>
+                        <span>Rp {{ order.shipping_cost|floatformat:0 }}</span>
+                    </div>
+                    {% if order.discount > 0 %}
+                    <div class="price-row" style="color: #10b981;">
+                        <span>Diskon</span>
+                        <span>-Rp {{ order.discount|floatformat:0 }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="price-row total">
+                        <span>Total Pembayaran</span>
+                        <span class="price-value">Rp {{ order.total|floatformat:0 }}</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div style="margin-top: 24px; display: flex; gap: 16px; flex-wrap: wrap;">
+                    {% if order.payment_status == 'pending' %}
+                    <button style="padding: 12px 24px; background: #FF8C00; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        Bayar Sekarang
+                    </button>
+                    {% endif %}
+                    
+                    <a href="{% url 'dashboard:products' %}" style="padding: 12px 24px; background: #f5f5f5; color: #1a1a1a; border: none; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-block;">
+                        Belanja Lagi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="{% static 'dashboard/js/script.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,1154 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Kopi Hayf - Nikmati Kopi Premium Indonesia{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==================== HERO SECTION ==================== */
+    .hero {
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFE5CC 100%);
+        padding: 80px 0;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(255, 140, 0, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(25%, -25%);
+    }
+
+    .hero-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-text .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .hero-text h1 {
+        font-size: 56px;
+        font-weight: 800;
+        line-height: 1.2;
+        color: #2C1810;
+        margin-bottom: 24px;
+        letter-spacing: -1px;
+    }
+
+    .hero-text .highlight {
+        color: #FF8C00;
+        position: relative;
+        display: inline-block;
+    }
+
+    .hero-text .highlight::after {
+        content: '';
+        position: absolute;
+        bottom: 8px;
+        left: 0;
+        width: 100%;
+        height: 12px;
+        background: rgba(255, 140, 0, 0.2);
+        z-index: -1;
+        border-radius: 4px;
+    }
+
+    .hero-text .description {
+        font-size: 18px;
+        line-height: 1.7;
+        color: #6B5B4F;
+        margin-bottom: 32px;
+        max-width: 500px;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #FF8C00;
+        border: 2px solid #FF8C00;
+    }
+
+    .btn-secondary:hover {
+        background: #FF8C00;
+        color: white;
+    }
+
+    .btn-white {
+        background: white;
+        color: #FF8C00;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-white:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+    }
+
+    .btn-outline:hover {
+        background: white;
+        color: #FF8C00;
+    }
+
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .rating .stars {
+        display: flex;
+        gap: 4px;
+    }
+
+    .rating .star {
+        font-size: 20px;
+        filter: drop-shadow(0 2px 4px rgba(255, 140, 0, 0.3));
+    }
+
+    .rating-text {
+        font-size: 15px;
+        color: #6B5B4F;
+        font-weight: 500;
+    }
+
+    .hero-image {
+        position: relative;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .image-container {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .image-container::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 140, 0, 0.1) 0%, transparent 100%);
+        z-index: 1;
+    }
+
+    .image-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.5s ease;
+    }
+
+    .image-container:hover img {
+        transform: scale(1.05);
+    }
+
+    /* ==================== STATS SECTION ==================== */
+    .stats {
+        background: white;
+        padding: 60px 0;
+        border-bottom: 1px solid #F0E6DC;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 40px;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-number {
+        font-size: 48px;
+        font-weight: 800;
+        color: #FF8C00;
+        margin-bottom: 8px;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 16px;
+        color: #6B5B4F;
+        font-weight: 500;
+    }
+
+    /* ==================== WHY SECTION ==================== */
+    .why-section {
+        padding: 100px 0;
+        background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F0 100%);
+    }
+
+    .section-title {
+        font-size: 42px;
+        font-weight: 800;
+        text-align: center;
+        color: #2C1810;
+        margin-bottom: 16px;
+        letter-spacing: -0.5px;
+    }
+
+    .section-subtitle {
+        font-size: 18px;
+        text-align: center;
+        color: #6B5B4F;
+        max-width: 600px;
+        margin: 0 auto 60px;
+        line-height: 1.6;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 32px;
+        margin-top: 60px;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 32px;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(255, 140, 0, 0.15);
+        border-color: #FFE5CC;
+    }
+
+    .feature-icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFE5CC 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: rotate(5deg) scale(1.1);
+    }
+
+    .feature-card h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #2C1810;
+        margin-bottom: 12px;
+    }
+
+    .feature-card p {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #6B5B4F;
+    }
+
+    /* ==================== PRODUCTS SECTION ==================== */
+    .products-section {
+        padding: 100px 0;
+        background: white;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 32px;
+        margin-top: 60px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        border: 2px solid transparent;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        border-color: #FFE5CC;
+    }
+
+    .product-image {
+        position: relative;
+        padding-top: 100%;
+        overflow: hidden;
+        background: #F8F8F8;
+    }
+
+    .product-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.1);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+        z-index: 2;
+    }
+
+    .product-details {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-title {
+        margin-bottom: 12px;
+    }
+
+    .product-title a {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2C1810;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-title a:hover {
+        color: #FF8C00;
+    }
+
+    .product-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        font-size: 13px;
+        color: #999;
+    }
+
+    .product-info span {
+        padding: 4px 12px;
+        background: #F8F8F8;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    .product-description {
+        font-size: 14px;
+        color: #6B5B4F;
+        line-height: 1.6;
+        margin-bottom: 16px;
+        flex: 1;
+    }
+
+    .product-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #F0F0F0;
+    }
+
+    .product-price {
+        font-size: 24px;
+        font-weight: 800;
+        color: #FF8C00;
+    }
+
+    .product-rating {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #FFF8F0;
+        padding: 6px 12px;
+        border-radius: 8px;
+    }
+
+    .product-rating .star {
+        font-size: 16px;
+    }
+
+    .rating-value {
+        font-weight: 600;
+        color: #2C1810;
+        font-size: 14px;
+    }
+
+    .add-to-cart {
+        width: 100%;
+        padding: 14px 24px;
+        background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .add-to-cart:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+    }
+
+    .add-to-cart:disabled {
+        background: #E0E0E0;
+        color: #999;
+        cursor: not-allowed;
+    }
+
+    /* ==================== TESTIMONIAL SECTION ==================== */
+    .testimonial-section {
+        padding: 100px 0;
+        background: linear-gradient(180deg, #FFF8F0 0%, #FFFFFF 100%);
+    }
+
+    .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 32px;
+        margin-top: 60px;
+    }
+
+    .testimonial-card {
+        background: white;
+        padding: 32px;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .testimonial-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(255, 140, 0, 0.15);
+        border-color: #FFE5CC;
+    }
+
+    .testimonial-stars {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 16px;
+    }
+
+    .testimonial-stars .star {
+        font-size: 18px;
+        filter: drop-shadow(0 2px 4px rgba(255, 140, 0, 0.3));
+    }
+
+    .testimonial-text {
+        font-size: 16px;
+        line-height: 1.7;
+        color: #2C1810;
+        margin-bottom: 24px;
+        font-style: italic;
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .testimonial-heart {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #FFF8F0 0%, #FFE5CC 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .testimonial-info {
+        flex: 1;
+    }
+
+    .testimonial-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2C1810;
+        margin-bottom: 4px;
+    }
+
+    .testimonial-location {
+        font-size: 14px;
+        color: #999;
+    }
+
+    /* ==================== HERO ORANGE SECTION ==================== */
+    .hero-orange {
+        background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
+        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-orange::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .hero-orange::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .hero-orange-content {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-orange-content h1 {
+        font-size: 48px;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 24px;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
+    }
+
+    .hero-orange-content p {
+        font-size: 20px;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 40px;
+    }
+
+    .hero-orange-content .cta-buttons {
+        justify-content: center;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 1024px) {
+        .hero-content {
+            gap: 40px;
+        }
+
+        .hero-text h1 {
+            font-size: 48px;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero {
+            padding: 60px 0;
+        }
+
+        .hero-content {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+
+        .hero-text {
+            text-align: center;
+        }
+
+        .hero-text h1 {
+            font-size: 40px;
+        }
+
+        .hero-text .description {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            justify-content: center;
+        }
+
+        .rating {
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 32px;
+        }
+
+        .hero-orange-content h1 {
+            font-size: 36px;
+        }
+
+        .hero-orange-content p {
+            font-size: 18px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .features-grid,
+        .product-grid,
+        .testimonial-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-text h1 {
+            font-size: 32px;
+        }
+
+        .section-title {
+            font-size: 28px;
+        }
+
+        .stat-number {
+            font-size: 36px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 14px;
+        }
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* ==================== UTILITIES ==================== */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .mt-48 {
+        margin-top: 48px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="badge">
+                        <span class="emoji" role="img" aria-label="celebration">🎉</span>
+                        <span>Grand Opening Sale - Diskon hingga 25%!</span>
+                    </div>
+                    <h1>
+                        Nikmati Kopi<br>
+                        <span class="highlight">Premium</span><br>
+                        Indonesia
+                    </h1>
+                    <p class="description">
+                        Dari biji pilihan terbaik Nusantara, diolah dengan keahlian tinggi untuk 
+                        menghadirkan cita rasa autentik Indonesia di setiap tegukan.
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="{% url 'dashboard:products' %}" class="btn btn-primary">
+                            Mulai Belanja
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                        <a href="{% url 'dashboard:about' %}" class="btn btn-secondary">
+                            Pelajari Lebih Lanjut
+                        </a>
+                    </div>
+                    <div class="rating">
+                        <div class="stars" role="img" aria-label="Rating 5 dari 5 bintang">
+                            <span class="star">⭐</span>
+                            <span class="star">⭐</span>
+                            <span class="star">⭐</span>
+                            <span class="star">⭐</span>
+                            <span class="star">⭐</span>
+                        </div>
+                        <span class="rating-text">4.9/5 dari 2,500+ review</span>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="image-container">
+                        <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&h=600&fit=crop" 
+                             alt="Paket Kopi Premium Kopi Hayf dengan kemasan eksklusif"
+                             loading="eager">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3 class="stat-number">50K+</h3>
+                    <p class="stat-label">Pelanggan Puas</p>
+                </div>
+                <div class="stat-item">
+                    <h3 class="stat-number">15+</h3>
+                    <p class="stat-label">Varian Kopi</p>
+                </div>
+                <div class="stat-item">
+                    <h3 class="stat-number">100%</h3>
+                    <p class="stat-label">Kualitas Terjamin</p>
+                </div>
+                <div class="stat-item">
+                    <h3 class="stat-number">4.9</h3>
+                    <p class="stat-label">Rating Pelanggan</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Section -->
+    <section class="why-section">
+        <div class="container">
+            <h2 class="section-title">
+                Mengapa Memilih <span class="highlight">Kopi Hayf</span>?
+            </h2>
+            <p class="section-subtitle">
+                Komitmen kami untuk memberikan pengalaman kopi terbaik melalui kualitas 
+                premium dan pelayanan yang memuaskan.
+            </p>
+
+            <div class="features-grid">
+                <article class="feature-card">
+                    <div class="feature-icon" role="img" aria-label="Ikon kualitas premium">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 17L12 22L22 17" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12L12 17L22 12" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Kualitas Premium</h3>
+                    <p>Hanya menggunakan biji kopi grade A terbaik dari perkebunan pilihan Indonesia</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon" role="img" aria-label="Ikon fresh roasted">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 6V12L16 14" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Fresh Roasted</h3>
+                    <p>Disangrai sesuai pesanan untuk menjamin kesegaran maksimal saat sampai ke tangan Anda</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon" role="img" aria-label="Ikon lokal origin">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Local Origin</h3>
+                    <p>Mendukung petani lokal dengan sourcing langsung dari perkebunan kopi Indonesia</p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon" role="img" aria-label="Ikon sertifikasi halal">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.7088 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 4L12 14.01L9 11.01" stroke="#FF8C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Sertifikasi Halal</h3>
+                    <p>Semua produk telah tersertifikasi halal dan aman untuk dikonsumsi</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="products-section">
+        <div class="container">
+            <h2 class="section-title">
+                Produk <span class="highlight">Unggulan</span>
+            </h2>
+            <p class="section-subtitle">
+                Pilihan terbaik dari koleksi kopi premium kami yang paling diminati pelanggan
+            </p>
+
+            <div class="product-grid">
+                {% for product in featured_products %}
+                <article class="product-card">
+                    <div class="product-image">
+                        <a href="{% url 'dashboard:product-detail' slug=product.slug %}" aria-label="Lihat detail {{ product.name }}">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" 
+                                     alt="{{ product.name }} - {{ product.category.name }}"
+                                     loading="lazy">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=400&fit=crop" 
+                                     alt="{{ product.name }} - {{ product.category.name }}"
+                                     loading="lazy">
+                            {% endif %}
+                        </a>
+                        {% if product.is_featured %}
+                        <span class="product-badge">Unggulan</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-details">
+                        <h3 class="product-title">
+                            <a href="{% url 'dashboard:product-detail' slug=product.slug %}">{{ product.name }}</a>
+                        </h3>
+                        
+                        <div class="product-info">
+                            <span>{{ product.category.name }}</span>
+                            <span>{% if product.stock > 0 %}{{ product.stock }} tersedia{% else %}Habis{% endif %}</span>
+                        </div>
+                        
+                        <p class="product-description">{{ product.description|truncatewords:10 }}</p>
+                        
+                        <div class="product-footer">
+                            <span class="product-price">Rp {{ product.price|floatformat:0 }}</span>
+                            <div class="product-rating">
+                                <span class="star" role="img" aria-label="Rating">⭐</span>
+                                <span class="rating-value">{{ product.rating|floatformat:1 }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if product.stock > 0 %}
+                        <button class="add-to-cart" 
+                                onclick="addToCart({{ product.id }}, 1)"
+                                aria-label="Tambahkan {{ product.name }} ke keranjang">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M3 6H21L19 16H5L3 6Z"/>
+                                <circle cx="9" cy="20" r="1"/>
+                                <circle cx="20" cy="20" r="1"/>
+                            </svg>
+                            Tambah ke Keranjang
+                        </button>
+                        {% else %}
+                        <button class="add-to-cart" disabled aria-label="Produk sedang habis">
+                            Stok Habis
+                        </button>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-48">
+                <a href="{% url 'dashboard:products' %}" class="btn btn-primary">
+                    Lihat Semua Produk
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section class="testimonial-section">
+        <div class="container">
+            <h2 class="section-title">
+                Apa Kata <span class="highlight">Pelanggan</span>?
+            </h2>
+            <p class="section-subtitle">
+                Testimoni dari ribuan pelanggan yang puas dengan kopi premium kami
+            </p>
+
+            <div class="testimonial-grid">
+                <article class="testimonial-card">
+                    <div class="testimonial-stars" role="img" aria-label="Rating 5 dari 5 bintang">
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                    </div>
+                    <p class="testimonial-text">
+                        "Kopi Hayf benar-benar menghadirkan cita rasa autentik Indonesia. Pengiriman cepat dan kemasan rapi!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-heart" role="img" aria-label="Ikon hati">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#FF8C00"/>
+                            </svg>
+                        </div>
+                        <div class="testimonial-info">
+                            <h4 class="testimonial-name">Sarah M.</h4>
+                            <p class="testimonial-location">Jakarta</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="testimonial-card">
+                    <div class="testimonial-stars" role="img" aria-label="Rating 5 dari 5 bintang">
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                    </div>
+                    <p class="testimonial-text">
+                        "Sebagai penikmat kopi, saya sangat puas dengan kualitas biji kopi dari Kopi Hayf. Recommended!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-heart" role="img" aria-label="Ikon hati">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#FF8C00"/>
+                            </svg>
+                        </div>
+                        <div class="testimonial-info">
+                            <h4 class="testimonial-name">Budi S.</h4>
+                            <p class="testimonial-location">Bandung</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="testimonial-card">
+                    <div class="testimonial-stars" role="img" aria-label="Rating 5 dari 5 bintang">
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                        <span class="star">⭐</span>
+                    </div>
+                    <p class="testimonial-text">
+                        "Pelayanan excellent, kopi fresh roasted, dan harga bersaing. Sudah langganan 6 bulan!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-heart" role="img" aria-label="Ikon hati">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#FF8C00"/>
+                            </svg>
+                        </div>
+                        <div class="testimonial-info">
+                            <h4 class="testimonial-name">Rina K.</h4>
+                            <p class="testimonial-location">Surabaya</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="container">
+            <h2 class="section-title">
+                Tim Ahli <span class="highlight">Kopi Hayf</span>
+            </h2>
+            <p class="section-subtitle">
+                Bertemu dengan para ahli kopi yang berdedikasi menghadirkan pengalaman kopi terbaik untuk Anda
+            </p>
+
+            <div class="team-grid">
+                <article class="team-card">
+                    <div class="team-image">
+                        <img src="static/dashboard/profile/lufy.jpg" 
+                             alt="Lutfi - Head Roaster"
+                             loading="lazy">
+                    </div>
+                    <div class="team-info">
+                        <h3 class="team-name">Lutfi</h3>
+                        <p class="team-role">Head Roaster</p>
+                        <p class="team-desc">Ahli sangrai dengan pengalaman 10+ tahun mengolah biji kopi premium Indonesia</p>
+                    </div>
+                </article>
+
+                <article class="team-card">
+                    <div class="team-image">
+                        <img src="static/dashboard/profile/rana.jpg" 
+                             alt="Nurul Chaerana - Quality Control Manager"
+                             loading="lazy">
+                    </div>
+                    <div class="team-info">
+                        <h3 class="team-name">Nurul Chaerana</h3>
+                        <p class="team-role">Quality Control Manager</p>
+                        <p class="team-desc">Memastikan setiap biji kopi memenuhi standar kualitas tertinggi sebelum sampai ke tangan Anda</p>
+                    </div>
+                </article>
+
+                <article class="team-card">
+                    <div class="team-image">
+                        <img src="static/dashboard/profile/aufar.jpg" 
+                             alt="Aufar - Sourcing Specialist"
+                             loading="lazy">
+                    </div>
+                    <div class="team-info">
+                        <h3 class="team-name">Aufar</h3>
+                        <p class="team-role">Sourcing Specialist</p>
+                        <p class="team-desc">Spesialis pencarian biji kopi terbaik dari berbagai daerah penghasil kopi di Indonesia</p>
+                    </div>
+                </article>
+
+                <article class="team-card">
+                    <div class="team-image">
+                        <img src="static/dashboard/profile/nana.jpg" 
+                             alt="Nana - Customer Experience Manager"
+                             loading="lazy">
+                    </div>
+                    <div class="team-info">
+                        <h3 class="team-name">Nana</h3>
+                        <p class="team-role">Customer Experience Manager</p>
+                        <p class="team-desc">Memastikan setiap pelanggan mendapatkan pengalaman belanja yang memuaskan dan memorable</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="hero-orange">
+        <div class="container">
+            <div class="hero-orange-content">
+                <h1>Siap Merasakan Kopi Premium Indonesia?</h1>
+                <p>Bergabunglah dengan ribuan pecinta kopi yang telah merasakan kelezatan biji kopi pilihan terbaik dari Nusantara.</p>
+                <div class="cta-buttons">
+                    <a href="{% url 'dashboard:products' %}" class="btn btn-white">
+                        Mulai Belanja Sekarang
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    <a href="{% url 'dashboard:kontak' %}" class="btn btn-outline">Hubungi Tim Kami</a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

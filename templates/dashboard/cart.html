@@ -1,0 +1,364 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Keranjang Belanja - Kopi Hayf{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dashboard/css/cart.css' %}">
+<style>
+    .cart-page {
+        padding: 60px 0;
+        background: #f9f9f9;
+        min-height: 70vh;
+    }
+    
+    .cart-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+    
+    .cart-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 32px;
+    }
+    
+    .cart-content {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 32px;
+    }
+    
+    .cart-items-section {
+        background: white;
+        padding: 32px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .cart-item {
+        display: flex;
+        gap: 20px;
+        padding: 20px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+    
+    .cart-item-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    
+    .cart-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .cart-item-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .cart-item-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+    
+    .cart-item-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: #FF8C00;
+    }
+    
+    .cart-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: auto;
+    }
+    
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        border: 2px solid #eee;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .qty-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: #f5f5f5;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .qty-btn:hover {
+        background: #FF8C00;
+        color: white;
+    }
+    
+    .qty-display {
+        width: 50px;
+        text-align: center;
+        font-weight: 600;
+        border: none;
+        background: white;
+    }
+    
+    .remove-btn {
+        color: #ef4444;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: underline;
+    }
+    
+    .remove-btn:hover {
+        color: #dc2626;
+    }
+    
+    .cart-summary {
+        background: white;
+        padding: 32px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+    
+    .summary-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #eee;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        color: #666;
+    }
+    
+    .summary-row.total {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 2px solid #eee;
+    }
+    
+    .checkout-btn {
+        width: 100%;
+        padding: 16px;
+        background: #FF8C00;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 24px;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+    
+    .checkout-btn:hover {
+        background: #E67E00;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(255, 140, 0, 0.3);
+    }
+    
+    .continue-shopping-link {
+        display: block;
+        text-align: center;
+        margin-top: 16px;
+        color: #666;
+        text-decoration: none;
+    }
+    
+    .continue-shopping-link:hover {
+        color: #FF8C00;
+    }
+    
+    .empty-cart-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 12px;
+    }
+    
+    .empty-cart-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 24px;
+        background: #f5f5f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .empty-cart-icon svg {
+        width: 60px;
+        height: 60px;
+        color: #999;
+    }
+    
+    @media (max-width: 968px) {
+        .cart-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .cart-summary {
+            position: static;
+        }
+        
+        .cart-item {
+            flex-direction: column;
+        }
+        
+        .cart-item-image {
+            width: 100%;
+            height: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="cart-page">
+    <div class="cart-container">
+        <h1 class="cart-title">Keranjang Belanja ({{ cart_count }})</h1>
+
+        {% if cart_items %}
+        <div class="cart-content">
+            <!-- Cart Items -->
+            <div class="cart-items-section">
+                {% for item in cart_items %}
+                <div class="cart-item">
+                    <div class="cart-item-image">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300" alt="{{ item.product.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="cart-item-details">
+                        <h3 class="cart-item-title">{{ item.product.name }}</h3>
+                        <p style="color: #666; font-size: 14px;">{{ item.product.category.name }}</p>
+                        <div class="cart-item-price">Rp {{ item.price|floatformat:0 }}</div>
+                        <div class="cart-item-actions">
+                            <div class="quantity-control">
+                                <button class="qty-btn" onclick="updateQuantity({{ item.product.id }}, {{ item.quantity|add:'-1' }})">−</button>
+                                <input type="number" class="qty-display" value="{{ item.quantity }}" readonly>
+                                <button class="qty-btn" onclick="updateQuantity({{ item.product.id }}, {{ item.quantity|add:'1' }})">+</button>
+                            </div>
+                            <a href="{% url 'dashboard:remove-from-cart' item.product.id %}" class="remove-btn">Hapus</a>
+                        </div>
+                    </div>
+                    <div style="text-align: right; min-width: 120px;">
+                        <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Subtotal</div>
+                        <div style="font-size: 20px; font-weight: 700; color: #1a1a1a;">Rp {{ item.total|floatformat:0 }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary">
+                <h3 class="summary-title">Ringkasan Belanja</h3>
+                
+                <div class="summary-row">
+                    <span>Subtotal ({{ cart_count }} item)</span>
+                    <span>Rp {{ subtotal|floatformat:0 }}</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span>Ongkos Kirim</span>
+                    <span>Rp {{ shipping_cost|floatformat:0 }}</span>
+                </div>
+                
+                {% if discount > 0 %}
+                <div class="summary-row" style="color: #10b981;">
+                    <span>Diskon</span>
+                    <span>-Rp {{ discount|floatformat:0 }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span style="color: #FF8C00;">Rp {{ total|floatformat:0 }}</span>
+                </div>
+                
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard:checkout' %}" class="checkout-btn">Lanjut ke Checkout</a>
+                {% else %}
+                    <a href="{% url 'dashboard:masuk' %}?next={% url 'dashboard:checkout' %}" class="checkout-btn">Login untuk Checkout</a>
+                {% endif %}
+                
+                <a href="{% url 'dashboard:products' %}" class="continue-shopping-link">← Lanjut Belanja</a>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty Cart -->
+        <div class="empty-cart-state">
+            <div class="empty-cart-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6H21L19 16H5L3 6Z"/>
+                    <circle cx="9" cy="20" r="1"/>
+                    <circle cx="20" cy="20" r="1"/>
+                </svg>
+            </div>
+            <h2 style="font-size: 24px; margin-bottom: 12px;">Keranjang Anda Kosong</h2>
+            <p style="color: #666; margin-bottom: 24px;">Yuk mulai belanja dan tambahkan kopi favorit Anda!</p>
+            <a href="{% url 'dashboard:products' %}" class="checkout-btn" style="display: inline-block; width: auto; padding: 14px 32px;">Mulai Belanja</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateQuantity(productId, newQuantity) {
+    if (newQuantity < 1) {
+        if (confirm('Hapus produk ini dari keranjang?')) {
+            window.location.href = `/cart/remove/${productId}/`;
+        }
+        return;
+    }
+    
+    // Update cart via AJAX or reload
+    fetch(`/cart/update/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: newQuantity })
+    }).then(() => window.location.reload());
+}
+</script>
+{% endblock %}

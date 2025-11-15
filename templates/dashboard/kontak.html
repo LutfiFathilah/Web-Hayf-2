@@ -1,0 +1,124 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Hubungi Kopi Hayf - Contact Us{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dashboard/css/kontak.css' %}">
+{% endblock %}
+
+{% block content %}
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">Hubungi <span class="highlight">Kopi Hayf</span></h1>
+            <p class="hero-description">
+                Kami siap membantu Anda dengan pertanyaan apapun tentang produk kopi premium kami. Jangan ragu untuk menghubungi tim yang berpengalaman!
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="content-wrapper">
+                <!-- Contact Info -->
+                <div class="contact-info">
+                    <h2 class="section-title">Informasi Kontak</h2>
+                    <p class="section-description">
+                        Tim customer service kami siap melayani Anda dengan sepenuh hati. Hubungi kami melalui berbagai channel yang tersedia.
+                    </p>
+
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-icon">📍</div>
+                            <h3 class="info-label">Alamat Toko</h3>
+                            <p>Jl. Pengayoman</p>
+                            <p>Pandang Raya No.1</p>
+                            <p>Kec. Panakkukang, Kota Makassar, Sulawesi Selatan 90231</p>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-icon">📞</div>
+                            <h3 class="info-label">Telepon</h3>
+                            <p>+62 82298056834</p>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-icon">📧</div>
+                            <h3 class="info-label">Email</h3>
+                            <p>lutfifathila4@gmail..com</p>
+                            <p>support@kopihayf.com</p>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-icon">🕐</div>
+                            <h3 class="info-label">Jam Operasional</h3>
+                            <p>Senin - Jumat: 07:00 - 22:00</p>
+                            <p>Sabtu - Minggu: 08:00 - 23:00</p>
+                            <p>Libur Nasional: 09:00 - 21:00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="contact-form-section">
+                    <h2 class="form-title">Kirim Pesan</h2>
+                    <p class="form-description">
+                        Ada pertanyaan atau saran? Kami akan merespons dalam waktu 1x24 jam
+                    </p>
+
+                    <form method="POST" id="contactForm">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Nama Lengkap</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Subjek</label>
+                            {{ form.subject }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Pesan</label>
+                            {{ form.message }}
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M2 10L18 2L10 18L8 11L2 10Z" fill="white" stroke="white" stroke-width="2"/>
+                            </svg>
+                            Kirim Pesan
+                        </button>
+                    </form>
+
+                    <div class="response-notice">
+                        <div class="notice-icon">⏰</div>
+                        <div>
+                            <h4 class="notice-title">Respon Cepat</h4>
+                            <p class="notice-text">
+                                Tim customer service kami akan merespons pesan Anda dalam waktu maksimal 1x24 jam pada hari kerja. Untuk pertanyaan mendesak, silakan hubungi kami melalui telepon atau WhatsApp.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+    // Form akan dihandle oleh Django
+    console.log('Form submitted');
+});
+</script>
+{% endblock %}

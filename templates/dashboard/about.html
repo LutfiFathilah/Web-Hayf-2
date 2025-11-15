@@ -1,0 +1,39 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Tentang Kami - Kopi Hayf{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dashboard/css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="container">
+            <h1 class="about-title">Tentang Kopi Hayf</h1>
+            <p class="about-subtitle">
+                Kami adalah rumah bagi pecinta kopi premium Indonesia – menghadirkan biji kopi terbaik dari seluruh nusantara, 
+                disangrai dengan presisi dan penuh cinta untuk menghasilkan cita rasa yang sempurna.
+            </p>
+
+            <div class="about-content">
+                <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600" alt="Tim Kopi Hayf" class="about-image">
+                <div class="about-text">
+                    <h2>Misi Kami</h2>
+                    <p>
+                        Membangun budaya kopi berkualitas dan berkelanjutan di Indonesia dengan mendukung petani lokal 
+                        serta memberikan pengalaman menikmati kopi yang autentik kepada pelanggan kami.
+                    </p>
+
+                    <h2>Kenapa Kopi Hayf?</h2>
+                    <ul>
+                        <li><i class="fa-solid fa-mug-saucer"></i> 100% biji kopi lokal pilihan</li>
+                        <li><i class="fa-solid fa-seedling"></i> Proses sangrai ramah lingkungan</li>
+                        <li><i class="fa-solid fa-heart"></i> Dikelola oleh tim pecinta kopi sejati</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
