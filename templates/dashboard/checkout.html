@@ -383,9 +383,14 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Midtrans Snap.js - PRODUCTION MODE -->
-<!-- ⚠️ PENTING: Ini sudah disesuaikan untuk Production! -->
-<script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ MIDTRANS_CLIENT_KEY }}"></script>
+<!-- Midtrans Snap.js - Dynamic Environment -->
+{% if MIDTRANS_IS_PRODUCTION %}
+    <!-- Production Midtrans -->
+    <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ MIDTRANS_CLIENT_KEY }}"></script>
+{% else %}
+    <!-- Sandbox Midtrans untuk Development/Testing -->
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ MIDTRANS_CLIENT_KEY }}"></script>
+{% endif %}
 
 <script>
 document.getElementById('payButton').addEventListener('click', function(e) {
