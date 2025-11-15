@@ -11,12 +11,12 @@ from urllib.parse import urlparse
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env file if exists (for local development)
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass  # python-dotenv not installed, skip
+# # Load .env file if exists (for local development)
+# try:
+#     from dotenv import load_dotenv
+#     load_dotenv()
+# except ImportError:
+#     pass  # python-dotenv not installed, skip
 
 # ==============================================================================
 # ENVIRONMENT DETECTION
@@ -92,7 +92,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
                 'django.template.context_processors.static',
-                'dashboard.context_processors.site_settings',
             ],
         },
     },
