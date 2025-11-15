@@ -17,6 +17,21 @@ from django.core.mail import send_mail, BadHeaderError
 from .models import Product, Category, Order, OrderItem, Customer, Review, Coupon
 from .forms import RegisterForm, LoginForm, CustomerProfileForm, ReviewForm, ContactForm
 
+from django.http import HttpResponse
+import sys
+
+def health_check(request):
+    """Simple health check endpoint"""
+    return HttpResponse(f"""
+        <h1>✅ Django is Working!</h1>
+        <ul>
+            <li>Python version: {sys.version}</li>
+            <li>Django settings module: {request.META.get('DJANGO_SETTINGS_MODULE')}</li>
+            <li>Debug mode: {settings.DEBUG}</li>
+            <li>User authenticated: {request.user.is_authenticated}</li>
+        </ul>
+    """)
+
 # Setup logger
 logger = logging.getLogger(__name__)
 
