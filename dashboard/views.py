@@ -49,6 +49,7 @@ except ImportError:
 def get_midtrans_client():
     """Get Midtrans Snap client instance"""
     if not MIDTRANS_AVAILABLE:
+        logger.error("Midtrans client not available")
         return None
     
     try:
@@ -57,6 +58,7 @@ def get_midtrans_client():
             server_key=getattr(settings, 'MIDTRANS_SERVER_KEY', ''),
             client_key=getattr(settings, 'MIDTRANS_CLIENT_KEY', '')
         )
+        logger.info("Midtrans client initialized successfully")
         return snap
     except Exception as e:
         logger.error(f"Error initializing Midtrans client: {str(e)}")
@@ -67,6 +69,7 @@ def create_midtrans_transaction(order):
     """Create Midtrans transaction and get Snap token"""
     snap = get_midtrans_client()
     if not snap:
+        logger.error("Failed to get Midtrans client")
         return {'success': False, 'error': 'Midtrans not configured'}
     
     try:
@@ -75,6 +78,8 @@ def create_midtrans_transaction(order):
             'order_id': str(order.order_number),
             'gross_amount': int(order.total),
         }
+        
+        logger.info(f"Creating transaction for order: {order.order_number}, amount: {order.total}")
         
         # Build item details
         item_details = []
@@ -172,7 +177,7 @@ def create_midtrans_transaction(order):
         # Create transaction
         transaction = snap.create_transaction(param)
         
-        logger.info(f"Midtrans transaction created for order {order.order_number}")
+        logger.info(f"Midtrans transaction created successfully for order {order.order_number}")
         
         return {
             'success': True,
@@ -182,6 +187,8 @@ def create_midtrans_transaction(order):
         
     except Exception as e:
         logger.error(f"Error creating Midtrans transaction: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         return {
             'success': False,
             'error': str(e)
@@ -195,6 +202,8 @@ def process_midtrans_notification(notification_data):
         transaction_status = notification_data.get('transaction_status')
         fraud_status = notification_data.get('fraud_status', 'accept')
         payment_type = notification_data.get('payment_type')
+        
+        logger.info(f"Processing notification for order {order_id}: {transaction_status}")
         
         try:
             order = Order.objects.get(order_number=order_id)
@@ -332,7 +341,7 @@ def products(request):
             products_list = products_list.filter(
                 Q(name__icontains=search_query) | 
                 Q(description__icontains=search_query) |
-                Q(category_name_icontains=search_query)
+                Q(category__name__icontains=search_query)
             )
         
         # Filter by category
@@ -821,19 +830,38 @@ def checkout(request):
 @login_required
 @require_POST
 def create_payment(request):
-    """Create Midtrans payment - AJAX endpoint"""
+    """Create Midtrans payment - AJAX endpoint - FIXED VERSION"""
+    import traceback
+    
     try:
-        customer = get_object_or_404(Customer, user=request.user)
+        logger.info(f"=== Payment Create Request Started ===")
+        logger.info(f"User: {request.user.username}")
+        logger.info(f"Method: {request.method}")
+        logger.info(f"Content-Type: {request.META.get('CONTENT_TYPE')}")
         
-        # Get cart
+        # Get customer
+        try:
+            customer = Customer.objects.get(user=request.user)
+            logger.info(f"Customer found: {customer}")
+        except Customer.DoesNotExist:
+            logger.error(f"Customer not found for user: {request.user.username}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Profil pelanggan tidak ditemukan. Silakan lengkapi profil Anda terlebih dahulu.'
+            }, status=404)
+        
+        # Get cart from session
         cart = request.session.get('cart', {})
+        logger.info(f"Cart items: {len(cart)}")
+        
         if not cart:
+            logger.warning("Cart is empty")
             return JsonResponse({
                 'success': False,
                 'error': 'Keranjang belanja kosong'
             }, status=400)
         
-        # Get shipping info
+        # Get shipping info from POST data
         shipping_address = request.POST.get('shipping_address', '').strip()
         shipping_city = request.POST.get('shipping_city', '').strip()
         shipping_state = request.POST.get('shipping_state', '').strip()
@@ -841,27 +869,39 @@ def create_payment(request):
         shipping_country = request.POST.get('shipping_country', 'Indonesia').strip()
         notes = request.POST.get('notes', '').strip()
         
-        # Validate
+        logger.info(f"Shipping info - City: {shipping_city}, State: {shipping_state}")
+        
+        # Validate required fields
         if not all([shipping_address, shipping_city, shipping_state, shipping_postal_code]):
+            missing_fields = []
+            if not shipping_address: missing_fields.append('Alamat')
+            if not shipping_city: missing_fields.append('Kota')
+            if not shipping_state: missing_fields.append('Provinsi')
+            if not shipping_postal_code: missing_fields.append('Kode Pos')
+            
+            logger.warning(f"Missing fields: {missing_fields}")
             return JsonResponse({
                 'success': False,
-                'error': 'Mohon lengkapi alamat pengiriman'
+                'error': f'Mohon lengkapi: {", ".join(missing_fields)}'
             }, status=400)
         
-        # Calculate totals
+        # Calculate totals and validate stock
         subtotal = Decimal('0')
         cart_items = []
         
         for product_id, item in cart.items():
             try:
                 product = Product.objects.get(id=product_id, status='active')
-                if product.stock < item['quantity']:
+                quantity = int(item['quantity'])
+                
+                # Check stock
+                if product.stock < quantity:
+                    logger.warning(f"Insufficient stock for {product.name}: {product.stock} < {quantity}")
                     return JsonResponse({
                         'success': False,
-                        'error': f'Stok {product.name} tidak mencukupi'
+                        'error': f'Stok {product.name} tidak mencukupi. Tersedia: {product.stock}'
                     }, status=400)
                 
-                quantity = item['quantity']
                 price = Decimal(str(item['price']))
                 item_total = price * quantity
                 subtotal += item_total
@@ -872,16 +912,27 @@ def create_payment(request):
                     'price': price,
                     'total': item_total
                 })
+                
+                logger.info(f"Cart item: {product.name} x{quantity} = Rp {item_total}")
+                
             except Product.DoesNotExist:
+                logger.error(f"Product not found: {product_id}")
                 return JsonResponse({
                     'success': False,
-                    'error': f'Produk tidak ditemukan'
+                    'error': f'Produk dengan ID {product_id} tidak ditemukan'
+                }, status=400)
+            except (ValueError, KeyError) as e:
+                logger.error(f"Invalid cart data for product {product_id}: {str(e)}")
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Data keranjang tidak valid'
                 }, status=400)
         
-        tax = Decimal('0')  # Pajak dihapus
-        shipping_cost = Decimal('1000')  # Ongkir Rp 1.000
+        # Calculate additional costs
+        tax = Decimal('0')  # No tax
+        shipping_cost = Decimal('1000')  # Fixed shipping Rp 1.000
         
-        # Apply coupon
+        # Apply coupon if exists
         discount = Decimal('0')
         coupon_code = request.session.get('coupon_code')
         if coupon_code:
@@ -889,54 +940,87 @@ def create_payment(request):
                 coupon = Coupon.objects.get(code=coupon_code.upper())
                 if coupon.is_valid():
                     discount = coupon.calculate_discount(subtotal)
-            except:
-                pass
+                    logger.info(f"Coupon applied: {coupon_code} - Discount: Rp {discount}")
+                else:
+                    logger.warning(f"Coupon invalid: {coupon_code}")
+            except Coupon.DoesNotExist:
+                logger.warning(f"Coupon not found: {coupon_code}")
         
         total = subtotal + tax + shipping_cost - discount
         
+        logger.info(f"Order calculation - Subtotal: {subtotal}, Tax: {tax}, Shipping: {shipping_cost}, Discount: {discount}, Total: {total}")
+        
         # Create Order
-        order = Order.objects.create(
-            customer=customer,
-            shipping_address=shipping_address,
-            shipping_city=shipping_city,
-            shipping_state=shipping_state,
-            shipping_postal_code=shipping_postal_code,
-            shipping_country=shipping_country,
-            subtotal=subtotal,
-            tax=tax,
-            shipping_cost=shipping_cost,
-            discount=discount,
-            total=total,
-            notes=notes,
-            status='pending',
-            payment_status='pending'
-        )
+        try:
+            order = Order.objects.create(
+                customer=customer,
+                shipping_address=shipping_address,
+                shipping_city=shipping_city,
+                shipping_state=shipping_state,
+                shipping_postal_code=shipping_postal_code,
+                shipping_country=shipping_country,
+                subtotal=subtotal,
+                tax=tax,
+                shipping_cost=shipping_cost,
+                discount=discount,
+                total=total,
+                notes=notes,
+                status='pending',
+                payment_status='pending'
+            )
+            logger.info(f"Order created: {order.order_number}")
+        except Exception as e:
+            logger.error(f"Failed to create order: {str(e)}")
+            logger.error(traceback.format_exc())
+            return JsonResponse({
+                'success': False,
+                'error': f'Gagal membuat pesanan: {str(e)}'
+            }, status=500)
         
         # Create Order Items & reduce stock
-        for cart_item in cart_items:
-            product = cart_item['product']
-            quantity = cart_item['quantity']
-            
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                product_name=product.name,
-                quantity=quantity,
-                price=cart_item['price']
-            )
-            
-            product.stock -= quantity
-            product.save()
+        try:
+            for cart_item in cart_items:
+                product = cart_item['product']
+                quantity = cart_item['quantity']
+                
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    product_name=product.name,
+                    quantity=quantity,
+                    price=cart_item['price']
+                )
+                
+                # Reduce stock
+                product.stock -= quantity
+                product.save()
+                
+                logger.info(f"Order item created: {product.name} x{quantity}, stock reduced to {product.stock}")
+        except Exception as e:
+            logger.error(f"Failed to create order items: {str(e)}")
+            logger.error(traceback.format_exc())
+            # Rollback: delete order
+            order.delete()
+            return JsonResponse({
+                'success': False,
+                'error': f'Gagal membuat detail pesanan: {str(e)}'
+            }, status=500)
         
         # Create Midtrans transaction
+        logger.info("Creating Midtrans transaction...")
         payment_result = create_midtrans_transaction(order)
         
         if payment_result['success']:
-            # Clear cart
+            logger.info(f"Midtrans transaction created successfully. Snap token: {payment_result['snap_token'][:20]}...")
+            
+            # Clear cart and coupon
             request.session['cart'] = {}
             if 'coupon_code' in request.session:
                 del request.session['coupon_code']
             request.session.modified = True
+            
+            logger.info("Cart cleared")
+            logger.info("=== Payment Create Request Completed Successfully ===")
             
             return JsonResponse({
                 'success': True,
@@ -945,23 +1029,31 @@ def create_payment(request):
                 'order_number': order.order_number
             })
         else:
-            # Rollback
-            for item in order.items.all():
-                if item.product:
-                    item.product.stock += item.quantity
-                    item.product.save()
-            order.delete()
+            logger.error(f"Midtrans transaction failed: {payment_result.get('error')}")
+            
+            # Rollback: restore stock and delete order
+            try:
+                for item in order.items.all():
+                    if item.product:
+                        item.product.stock += item.quantity
+                        item.product.save()
+                        logger.info(f"Stock restored for {item.product.name}")
+                order.delete()
+                logger.info("Order deleted (rollback)")
+            except Exception as rollback_error:
+                logger.error(f"Rollback failed: {str(rollback_error)}")
             
             return JsonResponse({
                 'success': False,
-                'error': f"Gagal membuat transaksi: {payment_result.get('error')}"
+                'error': f"Gagal membuat transaksi pembayaran: {payment_result.get('error', 'Unknown error')}"
             }, status=500)
             
     except Exception as e:
-        logger.error(f"Error in create_payment: {str(e)}")
+        logger.error(f"Unexpected error in create_payment: {str(e)}")
+        logger.error(traceback.format_exc())
         return JsonResponse({
             'success': False,
-            'error': str(e)
+            'error': f'Terjadi kesalahan sistem: {str(e)}'
         }, status=500)
 
 

@@ -1,7 +1,7 @@
 """
 Django settings for hayf project - VERCEL PRODUCTION DEPLOYMENT
 Optimized for Vercel serverless with Neon PostgreSQL & Midtrans Production
-Version: Production Ready - Fixed Midtrans Integration
+Version: Production Ready - FIXED with Hardcoded Midtrans Keys
 """
 
 import os
@@ -245,7 +245,7 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL')
 if FRONTEND_URL:
     CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
 
-PRODUCTION_URL = os.environ.get('PRODUCTION_URL')
+PRODUCTION_URL = os.environ.get('PRODUCTION_URL', 'https://web-hayf-2-f6l1.vercel.app')
 if PRODUCTION_URL:
     CORS_ALLOWED_ORIGINS.append(PRODUCTION_URL)
 
@@ -281,6 +281,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     'https://*.vercel.app',
+    'https://web-hayf-2-f6l1.vercel.app',
 ]
 
 if PRODUCTION_URL:
@@ -303,48 +304,18 @@ MESSAGE_TAGS = {
 }
 
 # ==============================================================================
-# MIDTRANS PAYMENT GATEWAY - PRODUCTION CONFIGURATION
+# MIDTRANS PAYMENT GATEWAY - 🔴 PRODUCTION CONFIGURATION 🔴
 # ==============================================================================
 
-# Get credentials from environment
-MIDTRANS_CLIENT_KEY = os.environ.get(
-    'MIDTRANS_CLIENT_KEY', 
-    'Mid-client-7IOSP8-yCqsvQrmc'  # Default for development
-)
-MIDTRANS_SERVER_KEY = os.environ.get(
-    'MIDTRANS_SERVER_KEY', 
-    'Mid-server-d0YeZC33h0j943-0h5dqLKC5'  # Default for development
-)
-MIDTRANS_MERCHANT_ID = os.environ.get(
-    'MIDTRANS_MERCHANT_ID', 
-    'G267798344'
-)
+# ⚠️ HARDCODED PRODUCTION CREDENTIALS - DO NOT CHANGE ⚠️
+MIDTRANS_CLIENT_KEY = 'Mid-client-7IOSP8-yCqsvQrmc'
+MIDTRANS_SERVER_KEY = 'Mid-server-d0YeZC33h0j943-0h5dqLKC5'
+MIDTRANS_MERCHANT_ID = 'G267798344'
+MIDTRANS_IS_PRODUCTION = True
 
-# Production mode detection
-MIDTRANS_IS_PRODUCTION = os.environ.get('MIDTRANS_IS_PRODUCTION', 'True') == 'True'
-
-# Auto-detect if keys are production or sandbox based on prefix
-if MIDTRANS_CLIENT_KEY and MIDTRANS_SERVER_KEY:
-    is_sandbox_key = MIDTRANS_CLIENT_KEY.startswith('SB-') or MIDTRANS_SERVER_KEY.startswith('SB-')
-    
-    # Validate key type matches production mode setting
-    if is_sandbox_key and MIDTRANS_IS_PRODUCTION:
-        import warnings
-        warnings.warn('⚠️ WARNING: Sandbox keys detected but MIDTRANS_IS_PRODUCTION=True! Setting to False.')
-        MIDTRANS_IS_PRODUCTION = False
-    
-    if not is_sandbox_key and not MIDTRANS_IS_PRODUCTION:
-        import warnings
-        warnings.warn('⚠️ WARNING: Production keys detected but MIDTRANS_IS_PRODUCTION=False! Setting to True.')
-        MIDTRANS_IS_PRODUCTION = True
-
-# API URLs based on production mode
-if MIDTRANS_IS_PRODUCTION:
-    MIDTRANS_API_URL = 'https://app.midtrans.com/snap/v1/transactions'
-    MIDTRANS_SNAP_URL = 'https://app.midtrans.com/snap/snap.js'
-else:
-    MIDTRANS_API_URL = 'https://app.sandbox.midtrans.com/snap/v1/transactions'
-    MIDTRANS_SNAP_URL = 'https://app.sandbox.midtrans.com/snap/snap.js'
+# Production API URLs (NOT Sandbox)
+MIDTRANS_API_URL = 'https://app.midtrans.com/snap/v1/transactions'
+MIDTRANS_SNAP_URL = 'https://app.midtrans.com/snap/snap.js'
 
 # Base URL for callbacks - CRITICAL FOR VERCEL
 if IS_VERCEL:
@@ -353,19 +324,11 @@ if IS_VERCEL:
     if VERCEL_URL:
         BASE_URL = f'https://{VERCEL_URL}'
     else:
-        # Fallback to environment variable
-        BASE_URL = os.environ.get('PRODUCTION_URL', os.environ.get('BASE_URL', ''))
-        
-        # Validate BASE_URL is set properly
-        if not BASE_URL or 'localhost' in BASE_URL or 'your-app' in BASE_URL:
-            if not DEBUG:
-                raise ValueError(
-                    '❌ BASE_URL must be set to your actual Vercel domain!\n'
-                    'Set PRODUCTION_URL or BASE_URL environment variable in Vercel Dashboard.'
-                )
+        # Fallback to production URL
+        BASE_URL = 'https://web-hayf-2-f6l1.vercel.app'
 else:
     # Local development
-    BASE_URL = os.environ.get('BASE_URL', 'http://localhost:8000')
+    BASE_URL = 'http://localhost:8000'
 
 # Callback URLs for Midtrans
 MIDTRANS_FINISH_URL = f'{BASE_URL}/payment/finish/'
@@ -378,16 +341,6 @@ SITE_URL = BASE_URL
 
 DEFAULT_CURRENCY = 'IDR'
 
-# Validate Midtrans configuration in production
-if (IS_VERCEL or not DEBUG) and not os.environ.get('SKIP_MIDTRANS_VALIDATION'):
-    if not MIDTRANS_CLIENT_KEY or MIDTRANS_CLIENT_KEY.startswith('Mid-client-7IOSP8'):
-        import warnings
-        warnings.warn('⚠️ WARNING: Default MIDTRANS_CLIENT_KEY detected! Set proper key in environment.')
-    
-    if not MIDTRANS_SERVER_KEY or MIDTRANS_SERVER_KEY.startswith('Mid-server-d0YeZC'):
-        import warnings
-        warnings.warn('⚠️ WARNING: Default MIDTRANS_SERVER_KEY detected! Set proper key in environment.')
-
 # ==============================================================================
 # EMAIL CONFIGURATION
 # ==============================================================================
@@ -398,8 +351,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'lutfifathila4@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'yijc kxhw tred cydh')
 
 if EMAIL_HOST_USER:
     DEFAULT_FROM_EMAIL = f'Kopi Hayf <{EMAIL_HOST_USER}>'
@@ -545,29 +498,12 @@ if not IS_VERCEL and DEBUG:
         print(f"🔗 DB Host: {urlparse(DATABASE_URL).hostname}")
     print(f"📁 Static Root: {STATIC_ROOT}")
     print("=" * 80)
-    print("💳 MIDTRANS PAYMENT GATEWAY")
+    print("💳 MIDTRANS PAYMENT GATEWAY - 🔴 PRODUCTION MODE 🔴")
     print("=" * 80)
-    
-    # Mask sensitive keys
-    if MIDTRANS_CLIENT_KEY:
-        masked_client = MIDTRANS_CLIENT_KEY[:15] + '...' + MIDTRANS_CLIENT_KEY[-4:]
-        print(f"   Client Key: {masked_client}")
-    else:
-        print(f"   Client Key: ❌ Not Set")
-    
-    if MIDTRANS_SERVER_KEY:
-        masked_server = MIDTRANS_SERVER_KEY[:15] + '...' + MIDTRANS_SERVER_KEY[-4:]
-        print(f"   Server Key: {masked_server}")
-    else:
-        print(f"   Server Key: ❌ Not Set")
-    
+    print(f"   Client Key: {MIDTRANS_CLIENT_KEY[:15]}...{MIDTRANS_CLIENT_KEY[-4:]}")
+    print(f"   Server Key: {MIDTRANS_SERVER_KEY[:15]}...{MIDTRANS_SERVER_KEY[-4:]}")
     print(f"   Merchant ID: {MIDTRANS_MERCHANT_ID}")
-    
-    if MIDTRANS_IS_PRODUCTION:
-        print(f"   Mode: 🔴 PRODUCTION (REAL MONEY!)")
-    else:
-        print(f"   Mode: 🟡 SANDBOX (Testing)")
-    
+    print(f"   Mode: 🔴 PRODUCTION (REAL MONEY!)")
     print(f"   API URL: {MIDTRANS_API_URL}")
     print(f"   Snap URL: {MIDTRANS_SNAP_URL}")
     print("=" * 80)
@@ -577,19 +513,6 @@ if not IS_VERCEL and DEBUG:
     print(f"   Finish URL: {MIDTRANS_FINISH_URL}")
     print(f"   Notification URL: {MIDTRANS_NOTIFICATION_URL}")
     print("=" * 80)
-    
-    # Warnings
-    if MIDTRANS_IS_PRODUCTION:
-        print("⚠️  WARNING: PRODUCTION MODE ACTIVE!")
-        print("⚠️  ALL TRANSACTIONS WILL BE REAL AND CHARGE ACTUAL MONEY!")
-        print("=" * 80)
-    
-    if not MIDTRANS_CLIENT_KEY or not MIDTRANS_SERVER_KEY:
-        print("⚠️  WARNING: Midtrans credentials not properly configured!")
-        print("   Set MIDTRANS_CLIENT_KEY and MIDTRANS_SERVER_KEY in .env")
-        print("=" * 80)
-    
-    if 'localhost' in BASE_URL and IS_VERCEL:
-        print("⚠️  WARNING: BASE_URL still set to localhost!")
-        print("   Update BASE_URL in Vercel environment variables")
-        print("=" * 80)
+    print("⚠️  WARNING: PRODUCTION MODE ACTIVE!")
+    print("⚠️  ALL TRANSACTIONS WILL BE REAL AND CHARGE ACTUAL MONEY!")
+    print("=" * 80)
