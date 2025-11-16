@@ -249,7 +249,7 @@
         font-weight: 500;
     }
 
-    /* ==================== WHY SECTION ==================== */
+    /* ==================== WHY SECTION - FIXED ==================== */
     .why-section {
         padding: 100px 0;
         background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F0 100%);
@@ -275,18 +275,19 @@
 
     .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 32px;
         margin-top: 60px;
     }
 
     .feature-card {
         background: white;
-        padding: 32px;
+        padding: 40px 24px;
         border-radius: 20px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
         border: 2px solid transparent;
+        text-align: center;
     }
 
     .feature-card:hover {
@@ -296,14 +297,14 @@
     }
 
     .feature-icon {
-        width: 64px;
-        height: 64px;
+        width: 80px;
+        height: 80px;
         background: linear-gradient(135deg, #FFF8F0 0%, #FFE5CC 100%);
-        border-radius: 16px;
+        border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 24px;
+        margin: 0 auto 24px;
         transition: transform 0.3s ease;
     }
 
@@ -311,17 +312,25 @@
         transform: rotate(5deg) scale(1.1);
     }
 
+    .feature-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+
     .feature-card h3 {
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 700;
         color: #2C1810;
         margin-bottom: 12px;
+        text-align: center;
     }
 
     .feature-card p {
-        font-size: 15px;
+        font-size: 14px;
         line-height: 1.6;
         color: #6B5B4F;
+        text-align: center;
+        margin: 0;
     }
 
     /* ==================== PRODUCTS SECTION ==================== */
@@ -582,6 +591,77 @@
         color: #999;
     }
 
+    /* ==================== TEAM SECTION - FIXED ==================== */
+    .team-section {
+        padding: 100px 0;
+        background: white;
+    }
+
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 40px;
+        margin-top: 60px;
+    }
+
+    .team-card {
+        background: white;
+        border-radius: 20px;
+        overflow: visible;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .team-card:hover {
+        transform: translateY(-8px);
+    }
+
+    .team-image {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 24px;
+        position: relative;
+    }
+
+    .team-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .team-card:hover .team-image img {
+        transform: scale(1.05);
+        box-shadow: 0 12px 32px rgba(255, 140, 0, 0.2);
+    }
+
+    .team-info {
+        padding: 0 20px;
+        text-align: center;
+    }
+
+    .team-name {
+        font-size: 22px;
+        font-weight: 700;
+        color: #2C1810;
+        margin-bottom: 8px;
+    }
+
+    .team-role {
+        font-size: 15px;
+        color: #FF8C00;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .team-desc {
+        font-size: 14px;
+        color: #6B5B4F;
+        line-height: 1.6;
+    }
+
     /* ==================== HERO ORANGE SECTION ==================== */
     .hero-orange {
         background: linear-gradient(135deg, #FF8C00 0%, #FF6B00 100%);
@@ -654,6 +734,14 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 32px;
         }
+
+        .features-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .team-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
 
     @media (max-width: 768px) {
@@ -706,7 +794,8 @@
 
         .features-grid,
         .product-grid,
-        .testimonial-grid {
+        .testimonial-grid,
+        .team-grid {
             grid-template-columns: 1fr;
         }
     }
@@ -728,22 +817,6 @@
             padding: 12px 24px;
             font-size: 14px;
         }
-    }
-
-    /* ==================== ANIMATIONS ==================== */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .fade-in-up {
-        animation: fadeInUp 0.6s ease-out;
     }
 
     /* ==================== UTILITIES ==================== */
@@ -950,9 +1023,7 @@
                         </div>
                         
                         {% if product.stock > 0 %}
-                        <button class="add-to-cart" 
-                                onclick="addToCart({{ product.id }}, 1)"
-                                aria-label="Tambahkan {{ product.name }} ke keranjang">
+                        <button class="add-to-cart" data-product-id="{{ product.id }}" aria-label="Tambahkan {{ product.name }} ke keranjang">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path d="M3 6H21L19 16H5L3 6Z"/>
                                 <circle cx="9" cy="20" r="1"/>
@@ -1080,7 +1151,7 @@
             <div class="team-grid">
                 <article class="team-card">
                     <div class="team-image">
-                        <img src="static/dashboard/profile/lufy.jpg" 
+                        <img src="{% static 'dashboard/profile/lufy.jpg' %}" 
                              alt="Lutfi - Head Roaster"
                              loading="lazy">
                     </div>
@@ -1093,7 +1164,7 @@
 
                 <article class="team-card">
                     <div class="team-image">
-                        <img src="static/dashboard/profile/rana.jpg" 
+                        <img src="{% static 'dashboard/profile/rana.jpg' %}" 
                              alt="Nurul Chaerana - Quality Control Manager"
                              loading="lazy">
                     </div>
@@ -1106,7 +1177,7 @@
 
                 <article class="team-card">
                     <div class="team-image">
-                        <img src="static/dashboard/profile/aufar.jpg" 
+                        <img src="{% static 'dashboard/profile/aufar.jpg' %}" 
                              alt="Aufar - Sourcing Specialist"
                              loading="lazy">
                     </div>
@@ -1119,7 +1190,7 @@
 
                 <article class="team-card">
                     <div class="team-image">
-                        <img src="static/dashboard/profile/nana.jpg" 
+                        <img src="{% static 'dashboard/profile/nana.jpg' %}" 
                              alt="Nana - Customer Experience Manager"
                              loading="lazy">
                     </div>

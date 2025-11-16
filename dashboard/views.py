@@ -332,7 +332,7 @@ def products(request):
             products_list = products_list.filter(
                 Q(name__icontains=search_query) | 
                 Q(description__icontains=search_query) |
-                Q(category__name__icontains=search_query)
+                Q(category_name_icontains=search_query)
             )
         
         # Filter by category
