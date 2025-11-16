@@ -13,6 +13,10 @@
     
     <title>{% block title %}Kopi Hayf - Premium Indonesian Coffee{% endblock %}</title>
     
+    <!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="{% static 'dashboard/favicon/favicon.ico' %}">
+<link rel="shortcut icon" type="image/x-icon" href="{% static 'dashboard/favicon/favicon.ico' %}">
+    
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
     {% block extra_css %}{% endblock %}
@@ -104,13 +108,18 @@
                 {% endif %}
             </svg>
             <span>{{ message }}</span>
-            <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; cursor: pointer; color: inherit; opacity: 0.7; font-size: 18px;" aria-label="Close message">&times;</button>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; margin-left: auto; padding: 0;" aria-label="Close message">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
         </div>
         {% endfor %}
     </div>
     <style>
         @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
+            from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
     </style>
